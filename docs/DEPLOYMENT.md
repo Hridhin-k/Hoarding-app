@@ -91,7 +91,7 @@ Access: authenticated RLS on `storage.objects` + short-lived signed URLs from th
 1. Import the Git repo into Vercel.
 2. Set all environment variables (Production + Preview as needed).
 3. Framework: Next.js. Build: `npm run build`. Output: default.
-4. `vercel.json` schedules hourly cron → `GET /api/cron/operations` with `CRON_SECRET`.
+4. `vercel.json` schedules daily cron (`0 0 * * *`, 00:00 UTC) → `GET /api/cron/operations` with `CRON_SECRET`. Vercel Hobby allows at most one run per day; hourly (`0 * * * *`) requires Pro. Holds and vacancy alerts are date-based (`CURRENT_DATE`), so daily is enough for MVP.
 5. Deploy. Hit `GET /api/health` — expect `{ ok: true, envConfigured: true }`.
 6. Smoke:
 
@@ -131,7 +131,7 @@ Manifest: `/manifest.webmanifest` (Field installable PWA). Service worker: `publ
 ## Monitoring and logging
 
 - **Liveness:** `GET /api/health`
-- **Ops cron:** hourly alerts refresh + hold expiry; failures return HTTP 500 (surface in host logs)
+- **Ops cron:** daily alerts refresh + hold expiry (00:00 UTC); failures return HTTP 500 (surface in host logs)
 - **Audit:** `audit_logs` via `write_audit_log` (membership-gated)
 - **Notifications:** vacancy / compliance alerts from `refresh_operational_alerts`
 - **App errors:** `app/error.tsx` shows digest; wire host log drain (Vercel → preferred sink) for production
