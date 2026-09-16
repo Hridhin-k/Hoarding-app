@@ -1,0 +1,123 @@
+---
+description: Board face occupancy and vacancy business rules
+globs:
+  - "lib/occupancy/**/*"
+  - "lib/vacancy/**/*"
+  - "app/**/*occupancy*"
+alwaysApply: true
+---
+
+# OCCUPANCY RULES
+
+Occupancy belongs to a FACE.
+
+Never to the board as a whole.
+
+Table: `occupancy_periods.face_id`
+
+---
+
+# STATES
+
+Stored period states (`occupancy_state`):
+
+occupied
+on_hold
+booked_future
+blocked
+
+Derived occupancy dimension (`face_occupancy_dimension`):
+
+vacant
+occupied
+on_hold
+booked_future
+becoming_vacant
+blocked
+
+Do not persist `vacant` or `becoming_vacant` as occupancy_periods rows.
+
+---
+
+# CONFLICTS
+
+The database must prevent overlapping:
+
+occupied
+booked_future
+
+periods for the same face.
+
+Existing protection: `occupancy_periods_no_overlap` (GiST exclusion on inclusive daterange).
+
+Application-side checks are useful for UX but are NOT the source of truth.
+
+Handle unique-violation / exclusion errors and translate them into user-facing messages.
+
+---
+
+# DATE SEMANTICS
+
+Define date boundaries explicitly.
+
+Do not assume whether end_date is inclusive/exclusive.
+
+Use one consistent convention throughout the application:
+
+**Inclusive on both ends.** `daterange(start_date, end_date, '[]')`.
+
+A booking ending 10 Jan and a booking starting 11 Jan do not overlap.
+
+A booking ending 10 Jan and a booking starting 10 Jan do overlap.
+
+Timezone: organization `timezone` defaults to `Asia/Kolkata`. Date comparisons for occupancy use `date`, not timestamptz.
+
+---
+
+# VACANCY LOOP
+
+A face approaching the end of occupancy should become:
+
+becoming_vacant
+
+within the configured pre-listing window (`organization_settings.vacancy_prelisting_days`, default 30).
+
+The system should:
+
+1. detect (`face_occupancy_dimension`)
+2. notify (`refresh_operational_alerts`)
+3. display upcoming vacancy
+4. allow future availability (`face_available_from`)
+
+Do not reimplement this only in React.
+
+---
+
+# IMPORTANT
+
+Do not couple occupancy to:
+
+lifecycle_status
+
+or:
+
+compliance_status
+
+They are independent dimensions.
+
+---
+
+# EDGE CASES
+
+Always test:
+
+same-day transitions
+adjacent periods
+overlapping periods
+future bookings
+holds
+blocked dates
+cancelled periods
+expired occupancy
+timezone boundaries
+concurrent booking attempts

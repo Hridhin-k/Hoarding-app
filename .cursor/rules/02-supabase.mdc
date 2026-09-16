@@ -1,0 +1,191 @@
+---
+description: Supabase database, RLS, Auth and Storage rules
+globs:
+  - "supabase/**/*"
+  - "lib/supabase/**/*"
+  - "lib/auth/**/*"
+  - "app/**/*"
+alwaysApply: true
+---
+
+# SUPABASE RULES
+
+Supabase is the backend for the MVP.
+
+Use:
+
+Supabase Auth
+Supabase PostgreSQL
+Supabase Storage
+PostGIS
+
+---
+
+# RLS IS MANDATORY
+
+Every tenant-owned table must have RLS enabled.
+
+Never create a tenant-owned table without RLS.
+
+Policies must enforce tenant isolation at database level.
+
+Never depend on:
+
+- frontend filtering
+- API route checks alone
+- tenant_id supplied by client
+- hidden inputs
+
+Tenant membership is determined by `public.is_org_member(tenant_id)`.
+
+Permission checks use `public.has_permission(tenant_id, permission)`.
+
+---
+
+# TENANT CONTEXT
+
+Determine tenant membership from the authenticated user.
+
+Never trust:
+
+request.body.tenant_id
+
+for authorization.
+
+A user must only operate on organizations where membership exists.
+
+The `h360_tenant` cookie is UX context only. It is not authorization.
+
+`tenant_id` is immutable after insert (`prevent_tenant_change` trigger).
+
+---
+
+# SERVICE ROLE
+
+The service-role key:
+
+SUPABASE_SERVICE_ROLE_KEY
+
+must NEVER be exposed to browser/client code.
+
+Never use it in:
+
+- Client Components
+- browser utilities
+- public API responses
+- NEXT_PUBLIC variables
+
+`lib/supabase/admin.ts` is the only allowed admin client. It is marked `server-only`.
+
+---
+
+# DATABASE CHANGES
+
+Every schema change requires a migration.
+
+Never manually edit production schema.
+
+Migration files must be:
+
+ordered
+reviewable
+idempotent where appropriate
+
+Inspect existing files in `supabase/migrations/` before adding a new one.
+
+---
+
+# CONSTRAINTS
+
+Use PostgreSQL constraints for important business rules.
+
+Examples:
+
+NOT NULL
+UNIQUE
+FOREIGN KEY
+CHECK
+EXCLUSION
+
+Occupancy overlap protection MUST use database-level protection.
+
+Existing constraint: `occupancy_periods_no_overlap` on `occupancy_periods`.
+
+---
+
+# STORAGE
+
+Private files:
+
+- compliance documents
+- contracts
+- proof photos
+- internal documents
+
+must remain private.
+
+Use signed URLs.
+
+Marketplace photos may be public only when intentionally published.
+
+Buckets:
+
+- `board-images`
+- `documents`
+- `proof-of-display`
+
+All buckets are private. Path format:
+
+`{tenant_id}/{entity}/{id}/{filename}`
+
+---
+
+# STORAGE SECURITY
+
+Validate:
+
+- MIME type
+- file size
+- file extension
+- ownership
+
+Never allow users to access another tenant's storage objects.
+
+Storage paths should include tenant isolation.
+
+Example:
+
+tenant_id/boards/board_id/file.ext
+
+---
+
+# SUPABASE QUERIES
+
+Always filter by the user's authorized tenant through RLS.
+
+Do not fetch entire tables.
+
+Use:
+
+select only required columns
+pagination
+indexes
+server-side filtering
+
+---
+
+# MIGRATION SAFETY
+
+Before changing an existing table:
+
+inspect:
+
+- existing columns
+- constraints
+- indexes
+- policies
+- dependencies
+
+Do not destroy existing data.
+
+Avoid destructive migrations unless explicitly approved.

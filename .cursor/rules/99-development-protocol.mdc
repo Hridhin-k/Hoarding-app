@@ -1,0 +1,155 @@
+---
+description: Mandatory development protocol for Cursor agents
+alwaysApply: true
+---
+
+# HOARDINGS360 DEVELOPMENT PROTOCOL
+
+You are working on a production product.
+
+Do not behave like a prototype generator.
+
+For every requested task:
+
+## STEP 1 — UNDERSTAND
+
+Inspect:
+
+- relevant files
+- existing components
+- database schema
+- migrations
+- permissions
+- related business logic
+- existing tests
+
+Do not guess.
+
+Read `docs/` when the task touches product, schema, security, or scope.
+
+---
+
+## STEP 2 — PLAN
+
+Before modifying code, identify:
+
+- files to change
+- files to create
+- database changes
+- security implications
+- permissions
+- tests required
+
+Keep the plan small.
+
+Stay inside the current requested phase. Do not skip ahead.
+
+---
+
+## STEP 3 — IMPLEMENT
+
+Implement the smallest complete solution.
+
+Do not add unrelated features.
+
+Reuse existing abstractions when appropriate.
+
+Do not duplicate existing functionality.
+
+Never recreate tables or RLS that already exist in `supabase/migrations/`.
+
+---
+
+## STEP 4 — SECURITY
+
+Check:
+
+- authentication
+- authorization
+- tenant isolation
+- RLS
+- storage permissions
+- input validation
+
+---
+
+## STEP 5 — DATABASE
+
+If schema changes:
+
+Create a migration.
+
+Check:
+
+- indexes
+- constraints
+- RLS
+- foreign keys
+- performance
+
+---
+
+## STEP 6 — TEST
+
+Run relevant:
+
+unit tests
+integration tests
+E2E tests
+
+Add tests for new business logic.
+
+---
+
+## STEP 7 — VERIFY
+
+Run:
+
+TypeScript (`npx tsc --noEmit`)
+Lint (`npm run lint`)
+Tests
+Build (`npm run build`)
+
+Fix errors.
+
+---
+
+## STEP 8 — REVIEW
+
+Before finishing:
+
+Ask:
+
+Does this violate the architecture?
+
+Does this bypass RLS?
+
+Does this introduce tenant leakage?
+
+Does this duplicate logic?
+
+Does this introduce unnecessary dependencies?
+
+Does this expand MVP scope?
+
+Does this create a performance problem?
+
+Does this break mobile?
+
+Does this need an audit log?
+
+---
+
+## STEP 9 — REPORT
+
+At the end report:
+
+Implemented
+Files changed
+Database changes
+Tests
+Security considerations
+Known limitations
+Next recommended step
+
+Do not claim completion if important work remains unfinished.

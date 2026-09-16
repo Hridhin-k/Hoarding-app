@@ -1,0 +1,143 @@
+---
+description: HOARDINGS360 architecture and code organization
+globs:
+  - "app/**/*"
+  - "components/**/*"
+  - "lib/**/*"
+  - "supabase/**/*"
+alwaysApply: true
+---
+
+# ARCHITECTURE RULES
+
+## MODULAR MONOLITH
+
+The MVP uses a modular monolith.
+
+Do not create microservices.
+
+Do not create unnecessary abstraction layers.
+
+Organize code by domain.
+
+Example:
+
+lib/
+  boards/
+  faces/
+  occupancy/
+  compliance/
+  enquiries/
+  field/
+  marketplace/
+
+Each domain may contain:
+
+service.ts
+queries.ts
+mutations.ts
+validation.ts
+types.ts
+utils.ts
+
+Do not force every domain to contain every file.
+
+---
+
+# UI VS BUSINESS LOGIC
+
+React components are responsible for:
+
+- rendering
+- user interaction
+- local UI state
+
+Business logic belongs in:
+
+- server actions
+- domain services
+- database functions
+- validated server-side operations
+
+Do not put complex database workflows inside components.
+
+---
+
+# SERVER VS CLIENT
+
+Prefer Server Components.
+
+Use Client Components only when needed for:
+
+- interaction
+- browser APIs
+- forms requiring client interaction
+- maps
+- QR scanning
+- geolocation
+- offline functionality
+
+Do not mark entire pages "use client" unnecessarily.
+
+This project uses Next.js 16. Read `node_modules/next/dist/docs/` before using APIs that may have changed.
+
+---
+
+# DATA ACCESS
+
+Do not fetch the same data repeatedly from multiple components.
+
+Create reusable typed data access functions.
+
+Avoid:
+
+component A → Supabase
+component B → Supabase
+component C → Supabase
+
+when one server-side query can provide the required page data.
+
+Use existing clients:
+
+- `lib/supabase/server.ts` — Server Components, Server Actions, Route Handlers
+- `lib/supabase/client.ts` — browser only
+- `lib/supabase/admin.ts` — service role, server-only (`import "server-only"`)
+- `lib/supabase/proxy.ts` — session refresh / route gating
+
+Never import the admin client from Client Components.
+
+---
+
+# ERROR HANDLING
+
+Never expose raw database errors.
+
+Translate technical errors into useful user-facing messages.
+
+Example:
+
+BAD:
+
+duplicate key value violates exclusion constraint
+
+GOOD:
+
+"This face already has a reservation during the selected dates."
+
+Log technical details server-side where appropriate.
+
+---
+
+# TYPES
+
+Avoid:
+
+any
+
+as unknown as X
+
+unless absolutely necessary and documented.
+
+Database types should be generated from Supabase schema where practical.
+
+Never duplicate database types manually if generated types can be used.

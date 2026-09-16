@@ -1,0 +1,96 @@
+---
+description: Prevent scope creep during MVP development
+alwaysApply: true
+---
+
+# MVP SCOPE GUARD
+
+The goal is to validate HOARDINGS360's core business.
+
+Core:
+
+Board
+→ Face
+→ Compliance
+→ Availability
+→ Vacancy
+→ Enquiry
+→ Field Proof
+
+Canonical list: `docs/MVP_SCOPE.md`
+
+---
+
+# ALLOWED
+
+Authentication
+Organizations
+Roles
+Boards
+Faces
+Locations
+Photos
+Compliance
+Documents
+Occupancy
+Vacancy Loop
+Dashboard
+Customers
+Enquiries
+Lightweight campaigns
+Marketplace
+Field PWA
+QR
+Proof
+Notifications
+Audit logs
+
+---
+
+# NOT MVP
+
+Do not implement unless explicitly requested:
+
+Payments
+GST invoicing
+E-sign
+AI pricing
+AI recommendations
+Audience measurement
+DOOH
+Accounting
+Advanced CRM
+WhatsApp automation
+SMS automation
+Native apps
+Microservices
+Redis
+Kafka
+RabbitMQ
+Complex billing
+Marketplace commissions
+Enterprise analytics
+
+---
+
+# SCOPE CONTROL
+
+If a requested feature is outside MVP:
+
+Do not automatically implement it.
+
+Explain:
+
+1. Why it is outside MVP.
+2. Whether it blocks an MVP workflow.
+3. The smallest MVP-compatible alternative.
+
+Then wait for explicit approval.
+
+---
+
+# IMPORTANT
+
+Do not add "nice to have" features just because they are easy to implement.
+
+Correctness is more important than feature count.

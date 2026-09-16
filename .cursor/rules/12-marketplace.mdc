@@ -1,0 +1,96 @@
+---
+description: Public marketplace rules
+globs:
+  - "app/**/market/**/*"
+  - "lib/marketplace/**/*"
+alwaysApply: true
+---
+
+# MARKETPLACE
+
+The marketplace is public.
+
+But public does NOT mean all database data is public.
+
+Only explicitly published inventory may be exposed.
+
+Server-side eligibility: `public.face_is_marketplace_eligible(face_id)`.
+
+Public reads: `marketplace_listings` and `marketplace_photos`.
+
+Public writes: `submit_marketplace_enquiry(...)` only.
+
+---
+
+# ELIGIBILITY
+
+A face is marketplace eligible only when:
+
+board.lifecycle_status = active
+
+AND face.marketplace_visible = true
+
+AND face.publishable = true
+
+AND mandatory compliance is valid
+
+AND face is not blocked
+
+`face_is_marketplace_eligible` currently treats mandatory compliance `expired` or `missing` as ineligible. `expiring` remains eligible.
+
+Do not query `boards` / `board_faces` directly from the public app for listing pages.
+
+---
+
+# PUBLIC DATA
+
+Allowed:
+
+board photos
+public board name
+location
+dimensions
+direction
+illumination
+public rate (`card_rate`)
+availability
+available-from date
+
+Never expose:
+
+private documents
+contracts
+customer information
+internal notes
+internal operational information
+tenant-private metadata
+`floor_rate`
+
+---
+
+# SEARCH
+
+Search must execute server-side.
+
+Do not download the entire inventory into the browser.
+
+Use:
+
+pagination
+filters
+indexes
+appropriate caching
+
+---
+
+# ENQUIRIES
+
+Public enquiries must:
+
+validate input
+rate-limit
+prevent abuse
+create tenant-side enquiry
+avoid exposing tenant identity unnecessarily
+
+Use `submit_marketplace_enquiry`. Do not insert into `enquiries` from the browser as anon.

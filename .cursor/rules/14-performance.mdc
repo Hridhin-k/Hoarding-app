@@ -1,0 +1,84 @@
+---
+description: HOARDINGS360 performance rules
+alwaysApply: true
+---
+
+# PERFORMANCE
+
+Performance is a product requirement.
+
+---
+
+# SERVER FIRST
+
+Prefer:
+
+Server Components
+server-side queries
+server-side filtering
+server-side pagination
+
+Avoid unnecessary client fetching.
+
+---
+
+# DATABASE
+
+Never fetch thousands of records just to filter them in React.
+
+Bad:
+
+SELECT *
+then filter in browser.
+
+Good:
+
+database-side filtering + pagination.
+
+---
+
+# IMAGES
+
+Use Next.js image optimization.
+
+Do not load full-resolution images into thumbnails.
+
+Lazy-load images when appropriate.
+
+Use signed URLs for private buckets. Do not make buckets public to simplify thumbnails.
+
+---
+
+# CLIENT JAVASCRIPT
+
+Avoid unnecessary:
+
+useEffect
+global state
+large dependencies
+client components
+
+Do not turn entire pages into Client Components unnecessarily.
+
+MapLibre, html5-qrcode, and qrcode must be loaded only on screens that need them.
+
+---
+
+# MAPS
+
+Maps should not block the entire page.
+
+Load expensive map functionality only when needed.
+
+---
+
+# PERFORMANCE REGRESSION
+
+When implementing a feature, consider:
+
+database query count
+payload size
+bundle size
+image size
+rendering cost
+mobile network performance

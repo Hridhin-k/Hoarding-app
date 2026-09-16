@@ -1,0 +1,385 @@
+---
+description: Core HOARDINGS360 product rules and engineering principles
+alwaysApply: true
+---
+
+# HOARDINGS360 — PROJECT RULES
+
+## PRODUCT
+
+HOARDINGS360 is an operating system and marketplace for India's outdoor advertising / OOH industry.
+
+The core product concept is:
+
+> THE BOARD IS THE CORE ASSET.
+
+A physical advertising structure is represented by a BOARD.
+
+A board contains one or more independently sellable FACES.
+
+Never treat a board as a single sellable inventory unit.
+
+Hierarchy:
+
+Organization
+→ Board
+→ Face
+→ Compliance
+→ Documents
+→ Occupancy
+→ Enquiries/Campaigns
+→ Field Jobs
+→ Proof
+
+---
+
+# MVP TECHNOLOGY
+
+Use:
+
+- Next.js App Router
+- TypeScript
+- Tailwind CSS
+- shadcn/ui
+- Supabase Auth
+- Supabase PostgreSQL
+- Supabase Storage
+- PostGIS
+- React Hook Form
+- Zod
+
+Do not introduce:
+
+- Prisma
+- Firebase
+- NestJS
+- Express
+- Redis
+- Kafka
+- RabbitMQ
+- microservices
+- custom authentication
+
+Supabase is the backend for the MVP.
+
+---
+
+# ARCHITECTURE
+
+Use a modular monolith.
+
+Keep business logic separated from UI.
+
+Never put complex business logic directly inside React components.
+
+Use domain-oriented modules.
+
+Preferred structure:
+
+app/
+components/
+lib/
+supabase/
+types/
+
+Business domains:
+
+auth
+organizations
+boards
+faces
+compliance
+documents
+occupancy
+vacancy
+customers
+enquiries
+campaigns
+field
+proof
+marketplace
+notifications
+audit
+
+---
+
+# CORE PRODUCT RULES
+
+## 1. BOARD ≠ FACE
+
+A board can contain multiple faces.
+
+Each face can have:
+
+- dimensions
+- direction
+- illumination
+- pricing
+- occupancy
+- availability
+- advertiser
+- marketplace visibility
+
+All selling/occupancy logic operates at FACE level.
+
+---
+
+## 2. THREE INDEPENDENT STATES
+
+Never create one universal board status.
+
+Lifecycle:
+
+draft
+active
+maintenance
+blocked
+retired
+
+Compliance:
+
+valid
+expiring
+expired
+missing
+
+Occupancy:
+
+vacant
+booked_future
+occupied
+on_hold
+becoming_vacant
+
+These states must remain independent.
+
+Example:
+
+Lifecycle = active
+Compliance = expired
+Occupancy = occupied
+
+This is valid.
+
+---
+
+## 3. TENANT ISOLATION
+
+Every tenant-owned record must contain:
+
+tenant_id
+
+Every database query must respect tenant boundaries.
+
+Supabase RLS is mandatory.
+
+Frontend checks are NOT sufficient security.
+
+Never trust:
+
+- route parameters
+- user-submitted tenant_id
+- hidden form fields
+- client-side role checks
+
+---
+
+## 4. DATABASE IS THE SOURCE OF TRUTH
+
+Business invariants must be enforced at database level whenever possible.
+
+Especially:
+
+- tenant isolation
+- unique identifiers
+- occupancy conflicts
+- foreign keys
+- required fields
+- valid state transitions where appropriate
+
+Do not rely exclusively on JavaScript validation for critical rules.
+
+---
+
+## 5. VACANCY LOOP
+
+Vacancy Loop is a core feature.
+
+When a face is approaching the end of an occupancy period:
+
+→ detect upcoming vacancy
+→ notify sales
+→ allow future availability
+→ receive enquiry
+→ move toward next booking
+
+Do not implement vacancy detection only as a visual UI calculation.
+
+---
+
+## 6. MARKETPLACE ELIGIBILITY
+
+A face can only appear publicly if:
+
+board lifecycle = active
+
+AND
+
+face marketplace_visible = true
+
+AND
+
+face publishable = true
+
+AND
+
+mandatory compliance = valid
+
+AND
+
+face is not blocked
+
+This must be enforced server-side.
+
+---
+
+## 7. FIELD PROOF
+
+Proof of display requires:
+
+- photo
+- GPS latitude
+- GPS longitude
+- accuracy
+- timestamp
+- technician identity
+
+Never mark a proof job completed without required proof.
+
+---
+
+# MVP SCOPE
+
+Build:
+
+- authentication
+- organizations
+- roles
+- permissions
+- boards
+- faces
+- locations
+- board photos
+- compliance
+- documents
+- occupancy
+- vacancy loop
+- dashboard
+- customers
+- enquiries
+- lightweight campaigns
+- marketplace
+- field PWA
+- QR
+- proof capture
+- notifications
+- audit logs
+
+Do NOT implement unless explicitly requested:
+
+- payments
+- GST invoicing
+- e-signatures
+- AI pricing
+- audience measurement
+- advanced profitability
+- enterprise accounting
+- native mobile applications
+- microservices
+- Redis
+- complex CRM
+- WhatsApp automation
+
+---
+
+# ENGINEERING STANDARD
+
+Production quality is required.
+
+Do not:
+
+- create spaghetti code
+- duplicate business logic
+- create giant components
+- create generic "utils" dumping grounds
+- hardcode business data
+- bypass RLS
+- expose service-role credentials
+- use mock data where real Supabase data is required
+- silently swallow errors
+- ignore TypeScript errors
+- leave unfinished TODOs in critical functionality
+
+Prefer:
+
+- small modules
+- clear naming
+- reusable domain logic
+- server-side validation
+- database constraints
+- typed APIs
+- explicit error handling
+- automated tests
+
+---
+
+# BEFORE CODING
+
+For every significant feature:
+
+1. Inspect existing implementation.
+2. Understand current architecture.
+3. Check existing database schema.
+4. Check existing reusable components.
+5. Check existing permissions.
+6. Create an implementation plan.
+7. Implement the smallest correct change.
+8. Test.
+9. Run typecheck.
+10. Run lint.
+11. Verify no regressions.
+
+Never blindly rewrite existing code.
+
+---
+
+# CHANGE DISCIPLINE
+
+Do not modify unrelated files.
+
+Do not refactor unrelated areas while implementing a feature.
+
+Do not introduce dependencies without justification.
+
+Do not change database schema without a migration.
+
+Do not delete existing functionality without explicit instruction.
+
+---
+
+# QUALITY BAR
+
+The application must feel like a serious B2B product.
+
+Prioritize:
+
+- correctness
+- security
+- tenant isolation
+- performance
+- accessibility
+- maintainability
+- responsive design
+- clean UX
+
+over flashy features.

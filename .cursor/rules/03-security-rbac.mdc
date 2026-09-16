@@ -1,0 +1,144 @@
+---
+description: Security, authorization and role rules
+alwaysApply: true
+---
+
+# SECURITY RULES
+
+Security is a release-blocking requirement.
+
+Never assume frontend security is sufficient.
+
+Canonical permission catalog:
+
+- TypeScript: `lib/permissions/catalog.ts`
+- Database: `public.role_permissions`
+
+Keep these in sync. Do not invent ad-hoc permissions in components.
+
+---
+
+# ROLES
+
+OWNER
+ADMIN
+OPS_MANAGER
+SALES
+COMPLIANCE
+TECHNICIAN
+
+---
+
+# PERMISSIONS
+
+Use centralized permissions.
+
+Examples:
+
+boards.view
+boards.create
+boards.update
+boards.delete
+
+faces.view
+faces.create
+faces.update
+faces.delete
+
+compliance.view
+compliance.manage
+
+occupancy.view
+occupancy.manage
+
+enquiries.view
+enquiries.manage
+
+field.view
+field.manage
+
+team.manage
+
+settings.manage
+
+audit.view
+
+See `docs/PERMISSIONS.md` for the full matrix.
+
+---
+
+# AUTHORIZATION
+
+Every sensitive operation requires:
+
+1. authenticated user
+2. organization membership
+3. appropriate permission
+4. target resource belongs to authorized tenant
+
+Never rely on route protection alone.
+
+`lib/supabase/proxy.ts` gates routes. It is not sufficient authorization for mutations.
+
+---
+
+# IDOR PROTECTION
+
+Never assume that knowing:
+
+/boards/123
+
+means the user may access board 123.
+
+Always verify authorization server-side.
+
+RLS must deny Tenant B rows even if the UUID is known.
+
+---
+
+# PUBLIC MARKETPLACE
+
+Public users can only access explicitly public marketplace data.
+
+Use `marketplace_listings` and `marketplace_photos` views.
+
+Never return:
+
+- internal notes
+- customer data
+- contracts
+- private documents
+- tenant metadata
+- internal pricing information (`floor_rate` is internal)
+- internal operational information
+
+---
+
+# AUDIT
+
+Important mutations must generate audit records.
+
+Use `public.write_audit_log(...)`.
+
+At minimum:
+
+create
+update
+delete
+publish
+unpublish
+occupancy changes
+compliance changes
+enquiry changes
+field completion
+proof upload
+
+---
+
+# SECURITY TESTING
+
+Every tenant-owned feature should have a test verifying:
+
+Tenant A cannot access Tenant B.
+
+This is mandatory.

@@ -1,0 +1,136 @@
+---
+description: PostgreSQL and database design rules
+globs:
+  - "supabase/**/*.sql"
+  - "lib/**/*"
+alwaysApply: true
+---
+
+# DATABASE RULES
+
+Use PostgreSQL as the source of truth.
+
+Canonical schema lives in `supabase/migrations/`.
+
+See `docs/DATABASE.md` before changing tables.
+
+---
+
+# NAMING
+
+Use:
+
+snake_case
+
+for database:
+
+tables
+columns
+indexes
+constraints
+functions
+
+Use singular semantic concepts for columns.
+
+---
+
+# TENANCY
+
+Every tenant-owned table must contain:
+
+tenant_id uuid NOT NULL
+
+and have appropriate foreign keys/indexes.
+
+Do not allow `tenant_id` updates. The `prevent_tenant_change` trigger already exists.
+
+---
+
+# FOREIGN KEYS
+
+Use explicit foreign keys.
+
+Do not rely on application code to maintain relationships.
+
+---
+
+# INDEXES
+
+Index common:
+
+tenant_id
+foreign keys
+status fields
+date fields
+search fields
+
+Use composite indexes where query patterns justify them.
+
+---
+
+# POSTGIS
+
+Board locations must use PostGIS.
+
+Use:
+
+geography(Point, 4326)
+
+where appropriate.
+
+Create spatial indexes.
+
+Existing: `boards.location geography(Point, 4326)` with GIST index `boards_location_gix`.
+
+Active boards require a location (`boards_active_require_location`).
+
+---
+
+# OCCUPANCY
+
+Occupancy conflicts must be protected at database level.
+
+Do not implement:
+
+"check availability"
+
+followed by:
+
+"insert"
+
+without database conflict protection.
+
+Concurrent requests must still be safe.
+
+Date range convention (inclusive on both ends):
+
+daterange(start_date, end_date, '[]')
+
+---
+
+# SOFT DELETE
+
+Prefer lifecycle/archive states for core business entities instead of hard deletion.
+
+Examples:
+
+board → retired
+customer → archived where needed
+
+Do not hard-delete records that are required for historical/audit purposes.
+
+---
+
+# AUDIT DATA
+
+Do not store sensitive information unnecessarily in audit logs.
+
+Store enough information to understand the change.
+
+---
+
+# MIGRATIONS
+
+Never make schema changes directly in application code.
+
+All changes go through migrations.

@@ -1,0 +1,100 @@
+---
+description: HOARDINGS360 testing requirements
+alwaysApply: true
+---
+
+# TESTING
+
+Do not consider a feature complete merely because the UI works.
+
+Every significant feature needs appropriate tests.
+
+---
+
+# REQUIRED TEST TYPES
+
+Unit tests:
+
+business logic
+validation
+state calculations
+
+Integration tests:
+
+database operations
+RLS
+permissions
+occupancy
+marketplace eligibility
+
+E2E:
+
+critical user workflows
+
+---
+
+# SECURITY TESTS
+
+Every tenant-owned feature must include cross-tenant access testing.
+
+Test:
+
+Tenant A → Tenant A = allowed
+
+Tenant A → Tenant B = denied
+
+---
+
+# CRITICAL FLOWS
+
+E2E tests must eventually cover:
+
+Signup
+Login
+Organization creation
+Board creation
+Face creation
+Compliance
+Occupancy
+Vacancy
+Marketplace publishing
+Marketplace enquiry
+Enquiry management
+Field job
+QR
+Proof capture
+
+---
+
+# EDGE CASES
+
+Always test:
+
+empty data
+invalid input
+duplicate data
+expired data
+unauthorized user
+wrong tenant
+network failure
+concurrent requests
+missing required fields
+
+---
+
+# DEFINITION OF DONE
+
+A feature is not complete if:
+
+tests fail
+typecheck fails
+lint fails
+build fails
+RLS is untested
+critical errors are ignored
+
+Commands:
+
+- Typecheck: `npx tsc --noEmit`
+- Lint: `npm run lint`
+- Build: `npm run build`

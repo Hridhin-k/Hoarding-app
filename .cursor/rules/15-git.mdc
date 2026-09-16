@@ -1,0 +1,55 @@
+---
+description: Git workflow and change discipline
+alwaysApply: true
+---
+
+# GIT
+
+Use clean, reviewable commits.
+
+Preferred pattern:
+
+feat:
+fix:
+refactor:
+test:
+chore:
+docs:
+
+Examples:
+
+feat: add board face management
+fix: prevent overlapping face occupancy
+test: add tenant isolation tests
+
+---
+
+# DO NOT
+
+Do not:
+
+force push
+reset branches destructively
+delete migrations
+rewrite unrelated history
+modify unrelated files
+
+unless explicitly instructed.
+
+Never commit `.env` files or service-role keys.
+
+---
+
+# BEFORE COMMIT
+
+Run:
+
+typecheck (`npx tsc --noEmit`)
+lint (`npm run lint`)
+tests
+
+and where appropriate:
+
+build (`npm run build`)
+
+Do not commit known broken code.

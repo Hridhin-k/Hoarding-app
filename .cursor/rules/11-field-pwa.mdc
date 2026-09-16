@@ -1,0 +1,103 @@
+---
+description: H360 Field PWA rules
+globs:
+  - "app/**/field/**/*"
+  - "components/field/**/*"
+  - "lib/field/**/*"
+alwaysApply: true
+---
+
+# FIELD PWA
+
+Field is designed for technicians.
+
+Primary objective:
+
+Complete field work quickly and reliably.
+
+Route prefix: `/field`
+
+Technicians have `field.view` only. They must not see `/manage` admin surfaces.
+
+---
+
+# UX
+
+Minimize taps.
+
+Large touch targets.
+
+Clear job status.
+
+Clear primary action.
+
+Avoid complicated admin UI.
+
+---
+
+# JOB FLOW
+
+Today's Jobs
+→ Open Job
+→ Navigate
+→ Start
+→ Scan QR
+→ Capture Proof
+→ Complete
+
+QR identifies `boards.qr_slug`. It is not a login token.
+
+Proof rows require photo path, lat, lng, captured_at, captured_by.
+
+Do not set `field_jobs.status = completed` without a matching `proof_records` row when `job_type = proof_capture`.
+
+---
+
+# QR
+
+QR identifies an asset.
+
+QR is NOT authentication.
+
+Never grant permissions merely because a QR code was scanned.
+
+---
+
+# GPS
+
+Proof capture should record:
+
+latitude
+longitude
+accuracy
+captured_at
+
+Respect browser permissions.
+
+Explain why location is required.
+
+---
+
+# OFFLINE
+
+The field application must tolerate poor network.
+
+Captured proof must not disappear because connectivity is unavailable.
+
+Use an upload queue.
+
+Retry when connectivity returns.
+
+Avoid creating an unnecessarily complex synchronization system.
+
+---
+
+# SECURITY
+
+Technicians can only access:
+
+their tenant
+their assigned/authorized jobs
+required board information
+
+They must not access administrative functionality.

@@ -1,0 +1,172 @@
+---
+description: HOARDINGS360 UI/UX design system and interface rules
+globs:
+  - "app/**/*.tsx"
+  - "components/**/*.tsx"
+alwaysApply: true
+---
+
+# UI/UX
+
+HOARDINGS360 is premium B2B operational software.
+
+The UI should feel:
+
+professional
+modern
+fast
+trustworthy
+clear
+
+Visual system is **Google Chrome / Google web UI inspired**:
+
+- Light chrome (`#f8f9fa` page, `#ffffff` surfaces)
+- Quiet borders (`#dadce0`)
+- Google blue actions (`#1a73e8`, hover `#174ea6`)
+- Selected nav: light blue chip (`#e8f0fe` / `#1967d2`) — never inverted black pills
+- Roboto. No display/cinematic fonts
+- Modest radius (8px). No grain, glow, or night-city gradients
+
+Avoid:
+
+- loud gradients
+- excessive glassmorphism
+- excessive animation
+- giant cards
+- unnecessary decoration
+- overly playful UI
+- amber/ink “OOH night” palettes
+
+Use existing shadcn/ui primitives in `components/ui/`.
+
+Do not add a second component library.
+
+---
+
+# DESIGN PRIORITY
+
+Information hierarchy > decoration.
+
+The user should quickly understand:
+
+What is happening?
+What needs attention?
+What action should I take?
+
+---
+
+# MANAGE
+
+Manage is desktop-first but responsive.
+
+Use:
+
+tables
+filters
+sidebars
+drawers
+dialogs
+timelines
+calendars
+maps
+status badges
+
+Route prefix: `/manage`
+
+---
+
+# MARKET
+
+Marketplace is:
+
+mobile-first
+visual
+SEO-friendly
+fast
+
+Prioritize:
+
+photos
+location
+price
+dimensions
+availability
+
+Route prefix: `/market` (public)
+
+---
+
+# FIELD
+
+Field is:
+
+mobile-first
+touch-friendly
+simple
+
+A technician should be able to complete a job with minimal taps.
+
+Route prefix: `/field`
+
+---
+
+# STATES
+
+Every screen must handle:
+
+loading
+empty
+error
+success
+permission denied
+no results
+
+Never leave blank screens.
+
+---
+
+# FORMS
+
+Forms should:
+
+group related fields
+validate clearly
+show inline errors
+preserve user input after recoverable errors
+avoid giant forms
+
+Use React Hook Form + Zod.
+
+---
+
+# TABLES
+
+Tables should:
+
+support search when useful
+support filtering when useful
+support pagination
+avoid excessive columns
+provide row actions
+
+Mobile tables should have an intentional responsive strategy.
+
+Do not simply overflow every table horizontally without considering usability.
+
+---
+
+# ACCESSIBILITY
+
+Use semantic HTML.
+
+Buttons must be buttons.
+
+Links must be links.
+
+Inputs need labels.
+
+Dialogs need accessible titles.
+
+Keyboard navigation must work.
+
+Do not rely solely on color to communicate state.
