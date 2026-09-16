@@ -1,3 +1,5 @@
+"use client";
+
 import {
   ILLUMINATION_LABELS,
   STRUCTURE_TYPE_LABELS,
@@ -5,7 +7,18 @@ import {
   type StructureType,
 } from "@/lib/types/enums";
 import type { MarketplaceSearchParams } from "@/lib/marketplace/public";
+import { MARKETPLACE_FILTER_KEYS } from "@/lib/marketplace/filters";
 import { PlaceFilters } from "@/components/location/place-filters";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 function Field({
   id,
@@ -26,21 +39,18 @@ function Field({
   );
 }
 
-export function MarketSearch({ values }: { values?: MarketplaceSearchParams }) {
+function FilterFields({ values, idPrefix }: { values?: MarketplaceSearchParams; idPrefix: string }) {
   return (
-    <form className="h360-panel space-y-3 p-4" method="get">
-      <h1 className="text-lg font-semibold">Find outdoor inventory</h1>
-      <p className="text-sm text-muted-foreground">Search published faces across Kerala. Pan-India coverage comes later.</p>
-      <Field id="market-q" label="Search">
-        <input
-          id="market-q"
+    <>
+      <Field id={`${idPrefix}-q`} label="Search">
+        <Input
+          id={`${idPrefix}-q`}
           name="q"
           defaultValue={values?.q ?? ""}
-          placeholder="Locality or board"
-          className="h-9 w-full rounded-lg border px-3 text-sm"
+          placeholder="Board, locality, or city"
         />
       </Field>
-      <Field id="market-city" label="District and city">
+      <Field id={`${idPrefix}-place`} label="District, city, locality">
         <div className="flex flex-col gap-2">
           <PlaceFilters
             district={values?.district ?? ""}
@@ -51,11 +61,11 @@ export function MarketSearch({ values }: { values?: MarketplaceSearchParams }) {
           />
         </div>
       </Field>
-      <Field id="market-type" label="Board type">
+      <Field id={`${idPrefix}-type`} label="Board type">
         <select
-          id="market-type"
+          id={`${idPrefix}-type`}
           name="type"
-          className="h-9 w-full rounded-lg border px-3 text-sm"
+          className="h360-select w-full"
           defaultValue={values?.type ?? ""}
         >
           <option value="">All board types</option>
@@ -66,11 +76,11 @@ export function MarketSearch({ values }: { values?: MarketplaceSearchParams }) {
           ))}
         </select>
       </Field>
-      <Field id="market-illumination" label="Illumination">
+      <Field id={`${idPrefix}-illumination`} label="Illumination">
         <select
-          id="market-illumination"
+          id={`${idPrefix}-illumination`}
           name="illumination"
-          className="h-9 w-full rounded-lg border px-3 text-sm"
+          className="h360-select w-full"
           defaultValue={values?.illumination ?? ""}
         >
           <option value="">Any illumination</option>
@@ -81,66 +91,61 @@ export function MarketSearch({ values }: { values?: MarketplaceSearchParams }) {
           ))}
         </select>
       </Field>
-      <Field id="market-direction" label="Direction">
-        <input
-          id="market-direction"
+      <Field id={`${idPrefix}-direction`} label="Direction">
+        <Input
+          id={`${idPrefix}-direction`}
           name="direction"
           defaultValue={values?.direction ?? ""}
           placeholder="e.g. North"
-          className="h-9 w-full rounded-lg border px-3 text-sm"
         />
       </Field>
       <div className="grid grid-cols-2 gap-2">
-        <Field id="market-min-price" label="Min ₹">
-          <input
-            id="market-min-price"
+        <Field id={`${idPrefix}-min-price`} label="Min ₹ / month">
+          <Input
+            id={`${idPrefix}-min-price`}
             name="minPrice"
             type="number"
             min={0}
             defaultValue={values?.minPrice ?? ""}
-            className="h-9 w-full rounded-lg border px-3 text-sm"
           />
         </Field>
-        <Field id="market-max-price" label="Max ₹">
-          <input
-            id="market-max-price"
+        <Field id={`${idPrefix}-max-price`} label="Max ₹ / month">
+          <Input
+            id={`${idPrefix}-max-price`}
             name="maxPrice"
             type="number"
             min={0}
             defaultValue={values?.maxPrice ?? ""}
-            className="h-9 w-full rounded-lg border px-3 text-sm"
           />
         </Field>
       </div>
       <div className="grid grid-cols-2 gap-2">
-        <Field id="market-min-width" label="Min width">
-          <input
-            id="market-min-width"
+        <Field id={`${idPrefix}-min-width`} label="Min width (ft)">
+          <Input
+            id={`${idPrefix}-min-width`}
             name="minWidth"
             type="number"
             min={0}
             step="0.1"
             defaultValue={values?.minWidth ?? ""}
-            className="h-9 w-full rounded-lg border px-3 text-sm"
           />
         </Field>
-        <Field id="market-min-height" label="Min height">
-          <input
-            id="market-min-height"
+        <Field id={`${idPrefix}-min-height`} label="Min height (ft)">
+          <Input
+            id={`${idPrefix}-min-height`}
             name="minHeight"
             type="number"
             min={0}
             step="0.1"
             defaultValue={values?.minHeight ?? ""}
-            className="h-9 w-full rounded-lg border px-3 text-sm"
           />
         </Field>
       </div>
-      <Field id="market-availability" label="Availability">
+      <Field id={`${idPrefix}-availability`} label="Availability">
         <select
-          id="market-availability"
+          id={`${idPrefix}-availability`}
           name="availability"
-          className="h-9 w-full rounded-lg border px-3 text-sm"
+          className="h360-select w-full"
           defaultValue={values?.availability ?? ""}
         >
           <option value="">Any availability</option>
@@ -149,9 +154,65 @@ export function MarketSearch({ values }: { values?: MarketplaceSearchParams }) {
           <option value="future">Future availability</option>
         </select>
       </Field>
-      <button type="submit" className="h-9 w-full rounded-full bg-primary text-sm font-medium text-primary-foreground hover:bg-[#174ea6]">
-        Search
-      </button>
-    </form>
+    </>
+  );
+}
+
+export function MarketSearch({
+  values,
+  activeCount = 0,
+}: {
+  values?: MarketplaceSearchParams;
+  activeCount?: number;
+}) {
+  return (
+    <>
+      <form method="get" className="h360-panel sticky top-16 hidden space-y-3 p-4 lg:block">
+        <div>
+          <h1 className="text-lg font-semibold tracking-tight">Find a face</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Published outdoor inventory across Kerala. Filter by place, size, and availability.
+          </p>
+        </div>
+        <FilterFields values={values} idPrefix="desk" />
+        <Button type="submit" className="w-full">
+          Search inventory
+        </Button>
+      </form>
+
+      <div className="lg:hidden">
+        <form method="get" className="flex gap-2">
+          {MARKETPLACE_FILTER_KEYS.filter((key) => key !== "q").map((key) =>
+            values?.[key] ? <input key={key} type="hidden" name={key} value={values[key]} /> : null,
+          )}
+          <Input
+            name="q"
+            defaultValue={values?.q ?? ""}
+            placeholder="Search locality or board"
+            aria-label="Search"
+            className="h-10"
+          />
+          <Sheet>
+            <SheetTrigger
+              render={<Button type="button" variant="outline" className="h-10 shrink-0" />}
+            >
+              Filters{activeCount ? ` (${activeCount})` : ""}
+            </SheetTrigger>
+            <SheetContent side="bottom" className="max-h-[90dvh] overflow-y-auto sm:max-w-full">
+              <SheetHeader>
+                <SheetTitle>Filters</SheetTitle>
+                <SheetDescription>Narrow published faces by place, size, lighting, and dates.</SheetDescription>
+              </SheetHeader>
+              <form method="get" className="space-y-3 px-4 pb-6">
+                <FilterFields values={values} idPrefix="mobile" />
+                <Button type="submit" className="w-full">
+                  Show matching inventory
+                </Button>
+              </form>
+            </SheetContent>
+          </Sheet>
+        </form>
+      </div>
+    </>
   );
 }

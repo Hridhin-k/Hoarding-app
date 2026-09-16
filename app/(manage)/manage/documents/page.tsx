@@ -23,7 +23,7 @@ export default async function DocumentsPage() {
       {!data?.length ? (
         <EmptyState title="No documents" description="Upload permits from Compliance or attach files to a board." />
       ) : (
-        <ul className="divide-y rounded-xl border bg-card">
+        <ul className="divide-y rounded-md border bg-card">
           {data.map((doc) => (
             <li key={doc.id} className="flex flex-col gap-2 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
               <div>

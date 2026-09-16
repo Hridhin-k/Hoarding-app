@@ -4,6 +4,7 @@ import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { CreateCampaignForm } from "@/components/campaigns/create-campaign-form";
 import { can } from "@/lib/permissions/catalog";
+import { formatFaceIdentity } from "@/lib/boards/format";
 
 export default async function CampaignsPage() {
   const ctx = await requirePermission("campaigns.view");
@@ -26,10 +27,15 @@ export default async function CampaignsPage() {
   ]);
 
   const faceOptions =
-    faces?.map((f) => {
-      const board = Array.isArray(f.boards) ? f.boards[0] : f.boards;
-      return { id: f.id, label: `${board?.board_code ?? ""} · ${f.face_label}` };
-    }) ?? [];
+    faces
+      ?.map((f) => {
+        const board = Array.isArray(f.boards) ? f.boards[0] : f.boards;
+        return {
+          id: f.id,
+          label: formatFaceIdentity({ boardName: board?.name, boardCode: board?.board_code, faceLabel: f.face_label }),
+        };
+      })
+      .sort((a, b) => a.label.localeCompare(b.label, "en-IN")) ?? [];
 
   return (
     <div className="space-y-6">
@@ -43,7 +49,7 @@ export default async function CampaignsPage() {
       {!campaigns?.length ? (
         <EmptyState title="No campaigns" description="Create a campaign after an enquiry is won." />
       ) : (
-        <ul className="divide-y rounded-xl border bg-card">
+        <ul className="divide-y rounded-md border bg-card">
           {campaigns.map((row) => {
             const customer = Array.isArray(row.customers) ? row.customers[0] : row.customers;
             const linked = (row.campaign_faces ?? [])
@@ -52,8 +58,12 @@ export default async function CampaignsPage() {
                 if (!face || typeof face !== "object") return null;
                 const typed = face as { face_label?: string; boards?: unknown };
                 const board = Array.isArray(typed.boards) ? typed.boards[0] : typed.boards;
-                const boardTyped = board as { board_code?: string } | null;
-                return `${boardTyped?.board_code ?? ""} ${typed.face_label ?? ""}`.trim();
+                const boardTyped = board as { board_code?: string; name?: string } | null;
+                return formatFaceIdentity({
+                  boardName: boardTyped?.name,
+                  boardCode: boardTyped?.board_code,
+                  faceLabel: typed.face_label,
+                });
               })
               .filter(Boolean);
             return (

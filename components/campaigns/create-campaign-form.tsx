@@ -15,7 +15,7 @@ export function CreateCampaignForm({
   const [error, setError] = useState<string | null>(null);
   return (
     <form
-      className="grid gap-3 rounded-xl border bg-card p-4 sm:grid-cols-2"
+      className="grid gap-3 rounded-md border bg-card p-4 sm:grid-cols-2"
       onSubmit={async (event) => {
         event.preventDefault();
         const result = await createCampaignAction(new FormData(event.currentTarget));
@@ -27,7 +27,7 @@ export function CreateCampaignForm({
       }}
     >
       <Input name="name" placeholder="Campaign name" required />
-      <select name="customerId" className="h-8 rounded-lg border px-2 text-sm">
+      <select name="customerId" className="h360-select">
         <option value="">No customer</option>
         {customers.map((c) => (
           <option key={c.id} value={c.id}>
@@ -37,15 +37,15 @@ export function CreateCampaignForm({
       </select>
       <Input name="startDate" type="date" />
       <Input name="endDate" type="date" />
-      <select name="status" className="h-8 rounded-lg border px-2 text-sm" defaultValue="draft">
+      <select name="status" className="h360-select" defaultValue="draft">
         <option value="draft">Draft</option>
         <option value="active">Active</option>
         <option value="completed">Completed</option>
         <option value="cancelled">Cancelled</option>
       </select>
       <div className="sm:col-span-2 space-y-1.5">
-        <p className="text-sm text-muted-foreground">Faces (optional, multi-select)</p>
-        <select name="faceIds" multiple className="min-h-28 w-full rounded-lg border px-2 py-2 text-sm">
+        <p className="text-sm text-muted-foreground">Boards / faces (optional, multi-select)</p>
+        <select name="faceIds" multiple className="h360-select min-h-28 w-full py-2">
           {faces.map((face) => (
             <option key={face.id} value={face.id}>
               {face.label}

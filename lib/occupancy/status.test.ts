@@ -7,6 +7,7 @@ import {
   occupancyConflicts,
   rangesOverlap,
   statesConflict,
+  summarizeOccupancyDimensions,
 } from "@/lib/occupancy/status";
 import { isMarketplaceEligible, marketplaceBlockReason } from "@/lib/marketplace/eligibility";
 import { roleHasPermission } from "@/lib/permissions/catalog";
@@ -195,3 +196,13 @@ describe("permissions", () => {
     expect(roleHasPermission("COMPLIANCE", "enquiries.manage")).toBe(false);
   });
 });
+
+describe("summarizeOccupancyDimensions", () => {
+  it("lists face occupancy counts in operational order", () => {
+    expect(summarizeOccupancyDimensions([])).toBe("No faces");
+    expect(summarizeOccupancyDimensions(["occupied", "vacant", "vacant", "becoming_vacant"])).toBe(
+      "1 occupied · 1 becoming vacant · 2 vacant",
+    );
+  });
+});
+

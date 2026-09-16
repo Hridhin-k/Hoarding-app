@@ -13,6 +13,7 @@ import { createClient } from "@/lib/supabase/server";
 import { availableFromDate, faceOccupancyDimension } from "@/lib/occupancy/status";
 import { cn } from "@/lib/utils";
 import type { OccupancyState } from "@/lib/types/enums";
+import { formatFaceIdentity } from "@/lib/boards/format";
 
 const stateColor: Record<OccupancyState, string> = {
   occupied: "bg-indigo-600",
@@ -55,28 +56,27 @@ export default async function OccupancyPage({
   const days = differenceInCalendarDays(monthEnd, monthStart) + 1;
 
   const faceOptions =
-    faces?.map((f) => {
-      const board = Array.isArray(f.boards) ? f.boards[0] : f.boards;
-      return { id: f.id, label: `${board?.board_code ?? ""} · ${f.face_label}` };
-    }) ?? [];
+    faces
+      ?.map((f) => {
+        const board = Array.isArray(f.boards) ? f.boards[0] : f.boards;
+        return {
+          id: f.id,
+          label: formatFaceIdentity({ boardName: board?.name, boardCode: board?.board_code, faceLabel: f.face_label }),
+        };
+      })
+      .sort((a, b) => a.label.localeCompare(b.label, "en-IN")) ?? [];
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Occupancy"
-        description="Face-level holds, bookings, and occupied periods. Reservations cannot overlap at the database."
+        description="Face-level holds, bookings, and occupied periods. Reservations cannot overlap."
       />
-      <div className="flex gap-2 text-sm">
-        <Link
-          href="/manage/occupancy?view=calendar"
-          className={cn("rounded-full border px-3 py-1", view === "calendar" && "bg-muted font-medium")}
-        >
+      <div className="flex gap-2">
+        <Link href="/manage/occupancy?view=calendar" className={cn("h360-chip", view === "calendar" && "h360-chip-active")}>
           Calendar
         </Link>
-        <Link
-          href="/manage/occupancy?view=timeline"
-          className={cn("rounded-full border px-3 py-1", view === "timeline" && "bg-muted font-medium")}
-        >
+        <Link href="/manage/occupancy?view=timeline" className={cn("h360-chip", view === "timeline" && "h360-chip-active")}>
           Timeline
         </Link>
       </div>
@@ -94,7 +94,7 @@ export default async function OccupancyPage({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Face</TableHead>
+              <TableHead>Board / face</TableHead>
               <TableHead>State</TableHead>
               <TableHead>Dates</TableHead>
               <TableHead>Notes</TableHead>
@@ -108,7 +108,11 @@ export default async function OccupancyPage({
               return (
                 <TableRow key={row.id}>
                   <TableCell>
-                    {board?.board_code} · {face?.face_label}
+                    {formatFaceIdentity({
+                      boardName: board?.name,
+                      boardCode: board?.board_code,
+                      faceLabel: face?.face_label,
+                    })}
                   </TableCell>
                   <TableCell>
                     <OccupancyStateBadge value={row.state as OccupancyState} />
@@ -148,11 +152,15 @@ export default async function OccupancyPage({
               !face.marketplace_visible;
 
             return (
-              <div key={face.id} className="rounded-xl border bg-card p-4">
+              <div key={face.id} className="rounded-md border bg-card p-4">
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <div className="font-medium">
-                      {board?.name} · {face.face_label}
+                      {formatFaceIdentity({
+                        boardName: board?.name,
+                        boardCode: board?.board_code,
+                        faceLabel: face.face_label,
+                      })}
                     </div>
                     <div className="text-xs text-muted-foreground">
                       Lifecycle {board?.lifecycle_status} · Available from {format(available, "d MMM yyyy")}
@@ -166,7 +174,7 @@ export default async function OccupancyPage({
                   </div>
                 </div>
                 <div
-                  className="grid h-10 overflow-hidden rounded bg-muted"
+                  className="grid h-10 overflow-hidden rounded-md bg-muted"
                   style={{ gridTemplateColumns: `repeat(${days}, minmax(0, 1fr))` }}
                 >
                   {Array.from({ length: days }).map((_, index) => {

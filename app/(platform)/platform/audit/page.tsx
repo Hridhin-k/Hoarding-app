@@ -16,7 +16,7 @@ export default async function PlatformAuditPage() {
       {!rows.length ? (
         <EmptyState title="No platform events" description="Inspect and tenant status changes appear here." />
       ) : (
-        <ul className="divide-y rounded-xl border bg-card text-sm">
+        <ul className="divide-y rounded-md border bg-card text-sm">
           {rows.map((row) => (
             <li key={row.id} className="px-4 py-3">
               <div className="font-medium">{row.action}</div>

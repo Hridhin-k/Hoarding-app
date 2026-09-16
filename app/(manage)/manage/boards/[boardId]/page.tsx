@@ -2,12 +2,14 @@ import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
 import { MapViewLazy } from "@/components/maps/map-view-lazy";
-import { LifecycleBadge } from "@/components/status/status-badge";
+import { StatusCluster } from "@/components/status/status-badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { can } from "@/lib/permissions/catalog";
+import { boardComplianceStatus } from "@/lib/compliance/board-compliance";
+import { faceOccupancyDimension, summarizeOccupancyDimensions } from "@/lib/occupancy/status";
 import { BoardQr } from "@/components/boards/board-qr";
 import { BoardEditForm } from "@/components/boards/board-edit-form";
 import { FaceForm } from "@/components/boards/face-form";
@@ -16,9 +18,11 @@ import {
   STRUCTURE_TYPE_LABELS,
   type BoardLifecycle,
   type IlluminationType,
+  type OccupancyState,
   type OwnershipType,
   type StructureType,
 } from "@/lib/types/enums";
+import { formatFaceIdentity } from "@/lib/boards/format";
 
 export default async function BoardDetailPage({
   params,
@@ -53,17 +57,49 @@ export default async function BoardDetailPage({
 
   const activeFaces = (faces ?? []).filter((face) => !face.archived_at);
   const archivedFaces = (faces ?? []).filter((face) => face.archived_at);
+  const faceIds = activeFaces.map((face) => face.id);
+
+  const [{ data: occupancyRows }, compliance] = await Promise.all([
+    faceIds.length
+      ? supabase
+          .from("occupancy_periods")
+          .select("id, face_id, start_date, end_date, state")
+          .in("face_id", faceIds)
+          .eq("tenant_id", ctx.tenantId)
+      : Promise.resolve({ data: [] as Array<{ id: string; face_id: string; start_date: string; end_date: string; state: OccupancyState }> }),
+    boardComplianceStatus(supabase, boardId),
+  ]);
+
+  const occupancyByFace = new Map<string, Array<{ id: string; start_date: string; end_date: string; state: OccupancyState }>>();
+  for (const id of faceIds) occupancyByFace.set(id, []);
+  for (const row of occupancyRows ?? []) {
+    occupancyByFace.get(row.face_id)?.push({
+      id: row.id,
+      start_date: row.start_date,
+      end_date: row.end_date,
+      state: row.state as OccupancyState,
+    });
+  }
+  const occupancyDimensions = faceIds.map((id) => faceOccupancyDimension(occupancyByFace.get(id) ?? []));
+  const occupancySummary = summarizeOccupancyDimensions(occupancyDimensions);
 
   return (
     <div className="space-y-6">
       <PageHeader
+        eyebrow={<span className="font-mono text-xs text-muted-foreground">{board.board_code}</span>}
         title={board.name}
-        description={`${board.board_code} · ${board.locality ? `${board.locality}, ` : ""}${board.city ?? ""}`}
-        actions={<LifecycleBadge value={board.lifecycle_status as BoardLifecycle} />}
+        description={[board.locality, board.city, board.district].filter(Boolean).join(", ")}
+        meta={
+          <StatusCluster
+            lifecycle={board.lifecycle_status as BoardLifecycle}
+            compliance={compliance}
+            occupancy={occupancySummary}
+          />
+        }
       />
 
       <Tabs defaultValue="overview">
-        <TabsList variant="line" className="w-full justify-start overflow-x-auto">
+        <TabsList variant="line" className="w-full justify-start overflow-x-auto border-b">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="faces">Faces</TabsTrigger>
           <TabsTrigger value="location">Location</TabsTrigger>
@@ -131,7 +167,7 @@ export default async function BoardDetailPage({
                 <Card key={face.id}>
                   <CardHeader>
                     <CardTitle className="flex flex-wrap items-center gap-2 text-base">
-                      {face.face_label}
+                      {formatFaceIdentity({ boardName: board.name, faceLabel: face.face_label })}
                       <span className="text-sm font-normal text-muted-foreground">
                         {face.width} × {face.height} ft · {Number(face.area_sqft).toLocaleString("en-IN")} sqft
                       </span>
@@ -257,7 +293,7 @@ export default async function BoardDetailPage({
           ) : (
             <ul className="space-y-2 text-sm">
               {activity.map((row) => (
-                <li key={row.id} className="rounded-lg border px-3 py-2">
+                <li key={row.id} className="rounded-md border px-3 py-2">
                   <span className="font-medium">{row.action}</span>
                   <span className="text-muted-foreground">
                     {" "}

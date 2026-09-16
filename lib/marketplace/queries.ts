@@ -126,6 +126,49 @@ export async function getMarketplaceBoardPhotos(boardId: string) {
   );
 }
 
+export async function getMarketplaceCoverPhotos(boardIds: string[]) {
+  const unique = [...new Set(boardIds.filter(Boolean))];
+  const covers = new Map<string, { url: string; caption: string | null }>();
+  if (!unique.length) return covers;
+
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("marketplace_photos")
+    .select("board_id, storage_path, caption, is_primary, sort_order")
+    .in("board_id", unique);
+
+  const chosen = new Map<string, { storage_path: string; caption: string | null; is_primary: boolean; sort_order: number }>();
+  for (const row of data ?? []) {
+    const boardId = String(row.board_id);
+    const next = {
+      storage_path: String(row.storage_path),
+      caption: (row.caption as string | null) ?? null,
+      is_primary: Boolean(row.is_primary),
+      sort_order: Number(row.sort_order ?? 0),
+    };
+    const current = chosen.get(boardId);
+    if (!current) {
+      chosen.set(boardId, next);
+      continue;
+    }
+    if (Number(next.is_primary) > Number(current.is_primary) || (next.is_primary === current.is_primary && next.sort_order < current.sort_order)) {
+      chosen.set(boardId, next);
+    }
+  }
+
+  await Promise.all(
+    [...chosen.entries()].map(async ([boardId, photo]) => {
+      try {
+        const url = await signedUrlAdmin("board-images", photo.storage_path, 3600);
+        if (url) covers.set(boardId, { url, caption: photo.caption });
+      } catch {
+        /* listing still renders without a photo */
+      }
+    }),
+  );
+  return covers;
+}
+
 export function groupListingsByBoard(listings: MarketplaceListing[]) {
   const map = new Map<
     string,

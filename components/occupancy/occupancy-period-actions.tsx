@@ -68,7 +68,7 @@ export function OccupancyPeriodActions({ period, faceId }: { period: Period; fac
             </div>
             <div className="space-y-1.5">
               <Label>State</Label>
-              <select name="state" defaultValue={period.state} className="h-8 w-full rounded-lg border px-2 text-sm">
+              <select name="state" defaultValue={period.state} className="h360-select w-full">
                 <option value="occupied">Occupied</option>
                 <option value="on_hold">Hold</option>
                 <option value="booked_future">Booked future</option>

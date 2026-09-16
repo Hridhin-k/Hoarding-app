@@ -8,6 +8,8 @@ import { DEFAULT_CENTER, mapStyleForBasemap } from "@/lib/maps/style";
 import type { GeocodeResult, MapBasemap } from "@/lib/maps/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { BasemapToggle } from "@/components/maps/basemap-toggle";
+import { StreetViewPane } from "@/components/maps/street-view-pane";
 
 function pinElement() {
   const wrap = document.createElement("div");
@@ -41,6 +43,7 @@ export function LocationPicker({
   const [results, setResults] = useState<GeocodeResult[]>([]);
   const [status, setStatus] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const paneClass = className ?? "h-[360px] w-full overflow-hidden rounded-xl border bg-muted";
 
   useEffect(() => {
     onChangeRef.current = onChange;
@@ -210,32 +213,26 @@ export function LocationPicker({
           ))}
         </ul>
       ) : null}
-      <div className="relative">
-        <div
-          ref={containerRef}
-          className={className ?? "h-[360px] w-full overflow-hidden rounded-xl border bg-muted"}
-          role="application"
-          aria-label="Satellite map location picker"
-        />
-        <div className="absolute top-3 left-3 flex overflow-hidden rounded-full border bg-white/95 text-xs shadow-sm">
-          <button
-            type="button"
-            className={`px-3 py-1.5 ${basemap === "satellite" ? "bg-primary font-medium text-primary-foreground" : "text-foreground"}`}
-            onClick={() => setBasemap("satellite")}
-          >
-            Satellite
-          </button>
-          <button
-            type="button"
-            className={`px-3 py-1.5 ${basemap === "streets" ? "bg-primary font-medium text-primary-foreground" : "text-foreground"}`}
-            onClick={() => setBasemap("streets")}
-          >
-            Map
-          </button>
+      <div className="grid gap-3 lg:grid-cols-2">
+        <div className="relative">
+          <div
+            ref={containerRef}
+            className={paneClass}
+            role="application"
+            aria-label="Location picker map"
+          />
+          <BasemapToggle basemap={basemap} onChange={setBasemap} />
         </div>
+        <StreetViewPane
+          lat={latitude}
+          lng={longitude}
+          className={paneClass}
+          emptyLabel="Drop a pin on the map to open street view of this site."
+        />
       </div>
       <p className="text-xs text-muted-foreground">
-        Satellite shows real buildings. Tap to drop the pin, then drag it onto the structure. Zoom in until the hoarding site is clear.
+        Satellite shows real buildings. Street view shows the road-level look of the structure. Tap to drop the pin, then
+        drag it onto the site.
       </p>
       {status ? <p className="text-xs text-destructive">{status}</p> : null}
     </div>

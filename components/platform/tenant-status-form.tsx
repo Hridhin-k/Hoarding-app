@@ -22,7 +22,7 @@ export function TenantStatusForm({
 
   return (
     <form
-      className="space-y-3 rounded-xl border bg-card p-4"
+      className="space-y-3 rounded-md border bg-card p-4"
       onSubmit={async (event) => {
         event.preventDefault();
         setPending(true);

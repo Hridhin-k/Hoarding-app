@@ -18,7 +18,7 @@ export default async function NotificationsPage() {
       {!data?.length ? (
         <EmptyState title="No notifications" description="Sales vacancy alerts and permit reminders will show here." />
       ) : (
-        <ul className="divide-y rounded-xl border bg-card">
+        <ul className="divide-y rounded-md border bg-card">
           {data.map((n) => (
             <li key={n.id} className="px-4 py-3 text-sm">
               <div className="font-medium">{n.title}</div>

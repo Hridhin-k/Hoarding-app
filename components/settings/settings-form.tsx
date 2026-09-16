@@ -10,7 +10,7 @@ export function SettingsForm({ days }: { days: number }) {
   const [message, setMessage] = useState<string | null>(null);
   return (
     <form
-      className="max-w-sm space-y-3 rounded-xl border bg-card p-4"
+      className="max-w-sm space-y-3 rounded-md border bg-card p-4"
       onSubmit={async (event) => {
         event.preventDefault();
         const result = await updateSettingsAction(new FormData(event.currentTarget));

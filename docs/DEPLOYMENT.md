@@ -14,6 +14,7 @@ Copy `.env.example` → `.env.local` (local) or set the same keys in the hosting
 | `SUPABASE_SERVICE_ROLE_KEY` | yes for cron + signed URLs | **server only** | Never prefix with `NEXT_PUBLIC_` |
 | `CRON_SECRET` | yes in prod | server | Bearer token for `/api/cron/operations` |
 | `NEXT_PUBLIC_MAP_PROVIDER` | no | public | `maplibre` (default) |
+| `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | no | public | Optional Maps Embed key for in-app Street View (restrict by HTTP referrer) |
 | `GOOGLE_MAPS_API_KEY` | no | server | Reserved; MapLibre is the MVP map |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | no | public | Optional bot protection |
 | `TURNSTILE_SECRET_KEY` | no | server | Optional bot protection |

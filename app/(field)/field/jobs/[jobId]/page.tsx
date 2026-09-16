@@ -2,8 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireTenant } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { MapViewLazy } from "@/components/maps/map-view-lazy";
 import { JobActions } from "@/components/field/job-actions";
 import { signedUrl } from "@/lib/storage/signed-url";
+import { streetViewOpenUrl } from "@/lib/maps/street-view";
 import {
   FIELD_JOB_PRIORITY_LABELS,
   FIELD_JOB_STATUS_LABELS,
@@ -14,6 +16,7 @@ import {
 } from "@/lib/types/enums";
 import { format } from "date-fns";
 import { can } from "@/lib/permissions/catalog";
+import { formatFaceIdentity } from "@/lib/boards/format";
 
 export default async function FieldJobPage({
   params,
@@ -60,6 +63,10 @@ export default async function FieldJobPage({
     board?.latitude != null && board?.longitude != null
       ? `https://maps.google.com/?q=${board.latitude},${board.longitude}`
       : null;
+  const streetViewUrl =
+    board?.latitude != null && board?.longitude != null
+      ? streetViewOpenUrl(Number(board.latitude), Number(board.longitude))
+      : null;
 
   return (
     <div className="space-y-4">
@@ -72,17 +79,20 @@ export default async function FieldJobPage({
         </div>
         <h1 className="text-xl font-semibold">{board?.name}</h1>
         <p className="text-sm text-neutral-600">
-          Face: {face?.face_label || "Board-level"} · {[board?.locality, board?.city].filter(Boolean).join(", ")}
+          {formatFaceIdentity({ boardName: board?.name, faceLabel: face?.face_label })}
+          {board?.locality || board?.city
+            ? ` · ${[board?.locality, board?.city].filter(Boolean).join(", ")}`
+            : ""}
         </p>
         <div className="mt-2 flex flex-wrap gap-2 text-xs">
-          <span className="rounded-full bg-white px-2 py-1 capitalize shadow-sm">
+          <span className="rounded-md border bg-card px-2 py-1 capitalize">
             {FIELD_JOB_STATUS_LABELS[job.status as FieldJobStatus]}
           </span>
-          <span className="rounded-full bg-white px-2 py-1 shadow-sm">
+          <span className="rounded-md border bg-card px-2 py-1">
             {FIELD_JOB_PRIORITY_LABELS[job.priority as FieldJobPriority]}
           </span>
           {job.scheduled_at ? (
-            <span className="rounded-full bg-white px-2 py-1 shadow-sm">
+            <span className="rounded-md border bg-card px-2 py-1">
               {format(new Date(job.scheduled_at), "d MMM, p")}
             </span>
           ) : null}
@@ -95,8 +105,25 @@ export default async function FieldJobPage({
         status={job.status as FieldJobStatus}
         jobType={job.job_type as FieldJobType}
         mapsUrl={mapsUrl}
+        streetViewUrl={streetViewUrl}
         qrVerified={Boolean(job.qr_verified_at)}
       />
+
+      {board?.latitude != null && board?.longitude != null ? (
+        <MapViewLazy
+          markers={[
+            {
+              id: job.id,
+              lat: Number(board.latitude),
+              lng: Number(board.longitude),
+              title: board.name ?? "Board",
+            },
+          ]}
+          center={{ lat: Number(board.latitude), lng: Number(board.longitude) }}
+          zoom={16}
+          className="h-[240px] w-full overflow-hidden rounded-2xl border"
+        />
+      ) : null}
 
       {proofs.length ? (
         <div className="space-y-3">
@@ -109,7 +136,7 @@ export default async function FieldJobPage({
             >
               {proof.url ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={proof.url} alt="Proof of display" className="mb-2 h-40 w-full rounded-xl object-cover" />
+                <img src={proof.url} alt="Proof of display" className="mb-2 h-40 w-full rounded-md object-cover" />
               ) : null}
               <div className="font-medium">{new Date(proof.captured_at).toLocaleString("en-IN")}</div>
               <div className="text-neutral-600">

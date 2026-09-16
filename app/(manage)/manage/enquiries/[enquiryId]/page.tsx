@@ -5,6 +5,7 @@ import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { can } from "@/lib/permissions/catalog";
 import { ENQUIRY_STATUS_LABELS, type EnquiryStatus } from "@/lib/types/enums";
+import { formatFaceIdentity } from "@/lib/boards/format";
 
 export default async function EnquiryDetailPage({
   params,
@@ -46,9 +47,9 @@ export default async function EnquiryDetailPage({
     <div className="space-y-6">
       <PageHeader
         title={data.name}
-        description={`${board?.name ?? ""} · ${face?.face_label ?? ""} · ${ENQUIRY_STATUS_LABELS[data.status as EnquiryStatus]}`}
+        description={`${formatFaceIdentity({ boardName: board?.name, boardCode: board?.board_code, faceLabel: face?.face_label })} · ${ENQUIRY_STATUS_LABELS[data.status as EnquiryStatus]}`}
       />
-      <div className="grid gap-2 rounded-xl border bg-card p-4 text-sm sm:grid-cols-2">
+      <div className="grid gap-2 rounded-md border bg-card p-4 text-sm sm:grid-cols-2">
         <div>Company: {data.company_name || "—"}</div>
         <div>Email: {data.email}</div>
         <div>Phone: {data.phone}</div>

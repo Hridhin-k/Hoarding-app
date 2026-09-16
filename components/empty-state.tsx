@@ -7,20 +7,28 @@ export function EmptyState({
   description,
   actionHref,
   actionLabel,
+  compact = false,
+  className,
 }: {
   title: string;
   description: string;
   actionHref?: string;
   actionLabel?: string;
+  compact?: boolean;
+  className?: string;
 }) {
   return (
-    <div className="flex flex-col items-start gap-3 rounded-xl border border-dashed bg-muted/30 px-6 py-12">
-      <div>
-        <h2 className="text-base font-medium">{title}</h2>
-        <p className="mt-1 max-w-lg text-sm text-muted-foreground">{description}</p>
-      </div>
+    <div
+      className={cn(
+        "flex flex-col items-start gap-1.5",
+        compact ? "px-0 py-1" : "rounded-md border border-dashed border-border px-4 py-6",
+        className,
+      )}
+    >
+      <h2 className="text-sm font-medium">{title}</h2>
+      <p className="max-w-lg text-sm text-muted-foreground">{description}</p>
       {actionHref && actionLabel ? (
-        <Link href={actionHref} className={cn(buttonVariants())}>
+        <Link href={actionHref} className={cn(buttonVariants({ size: "sm" }), "mt-1")}>
           {actionLabel}
         </Link>
       ) : null}

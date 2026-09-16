@@ -225,7 +225,7 @@ export function BoardWizard() {
   }
 
   return (
-    <div className="space-y-6 rounded-xl border bg-card p-5">
+    <div className="space-y-6 rounded-md border bg-card p-5">
       <ol className="flex flex-wrap gap-2 text-xs">
         {STEPS.map((label, index) => (
           <li
@@ -251,7 +251,7 @@ export function BoardWizard() {
             <Label htmlFor="structureType">Structure type</Label>
             <select
               id="structureType"
-              className="h-8 w-full rounded-lg border px-2 text-sm"
+              className="h360-select w-full"
               value={form.structureType}
               onChange={(e) => setField("structureType", e.target.value)}
             >
@@ -266,7 +266,7 @@ export function BoardWizard() {
             <Label htmlFor="ownershipType">Ownership</Label>
             <select
               id="ownershipType"
-              className="h-8 w-full rounded-lg border px-2 text-sm"
+              className="h360-select w-full"
               value={form.ownershipType}
               onChange={(e) => setField("ownershipType", e.target.value)}
             >
@@ -317,7 +317,7 @@ export function BoardWizard() {
       {step === 2 ? (
         <div className="space-y-4">
           {faces.map((face, index) => (
-            <div key={index} className="grid gap-4 rounded-xl border p-4 sm:grid-cols-2">
+            <div key={index} className="grid gap-4 rounded-md border p-4 sm:grid-cols-2">
               <div className="sm:col-span-2 flex items-center justify-between">
                 <h3 className="text-sm font-medium">Face {index + 1}</h3>
                 {faces.length > 1 ? (
@@ -335,7 +335,7 @@ export function BoardWizard() {
               <div className="space-y-1.5">
                 <Label>Illumination</Label>
                 <select
-                  className="h-8 w-full rounded-lg border px-2 text-sm"
+                  className="h360-select w-full"
                   value={face.illumination}
                   onChange={(e) => updateFace(index, { illumination: e.target.value })}
                 >

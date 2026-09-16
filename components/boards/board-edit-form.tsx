@@ -68,7 +68,7 @@ export function BoardEditForm({ board, canRetire }: { board: BoardEditValues; ca
 
   return (
     <form
-      className="space-y-4 rounded-xl border bg-card p-4"
+      className="space-y-4 rounded-md border bg-card p-4"
       onSubmit={async (event) => {
         event.preventDefault();
         const form = new FormData(event.currentTarget);
@@ -95,7 +95,7 @@ export function BoardEditForm({ board, canRetire }: { board: BoardEditValues; ca
         <Field name="name" label="Name" defaultValue={board.name} required />
         <div className="space-y-1.5">
           <Label htmlFor="structureType">Structure type</Label>
-          <select id="structureType" name="structureType" className="h-8 w-full rounded-lg border px-2 text-sm" defaultValue={board.structure_type}>
+          <select id="structureType" name="structureType" className="h360-select w-full" defaultValue={board.structure_type}>
             {Object.entries(STRUCTURE_TYPE_LABELS).map(([value, label]) => (
               <option key={value} value={value}>
                 {label}
@@ -105,7 +105,7 @@ export function BoardEditForm({ board, canRetire }: { board: BoardEditValues; ca
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="ownershipType">Ownership</Label>
-          <select id="ownershipType" name="ownershipType" className="h-8 w-full rounded-lg border px-2 text-sm" defaultValue={board.ownership_type}>
+          <select id="ownershipType" name="ownershipType" className="h360-select w-full" defaultValue={board.ownership_type}>
             <option value="owned">Owned</option>
             <option value="leased">Leased</option>
             <option value="managed">Managed</option>
@@ -117,7 +117,7 @@ export function BoardEditForm({ board, canRetire }: { board: BoardEditValues; ca
           <select
             id="lifecycleStatus"
             name="lifecycleStatus"
-            className="h-8 w-full rounded-lg border px-2 text-sm"
+            className="h360-select w-full"
             defaultValue={board.lifecycle_status}
           >
             <option value="draft">Draft</option>

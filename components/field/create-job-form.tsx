@@ -15,7 +15,7 @@ export function CreateJobForm({
   const [error, setError] = useState<string | null>(null);
   return (
     <form
-      className="grid gap-2 rounded-xl border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4"
+      className="grid gap-2 rounded-md border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4"
       onSubmit={async (event) => {
         event.preventDefault();
         const result = await createFieldJobAction(new FormData(event.currentTarget));
@@ -24,21 +24,21 @@ export function CreateJobForm({
       }}
     >
       <Input name="title" placeholder="Job title" required />
-      <select name="boardId" required className="h-8 rounded-lg border px-2 text-sm">
+      <select name="boardId" required className="h360-select">
         {boards.map((b) => (
           <option key={b.id} value={b.id}>
             {b.board_code} · {b.name}
           </option>
         ))}
       </select>
-      <select name="jobType" className="h-8 rounded-lg border px-2 text-sm" defaultValue="proof_capture">
+      <select name="jobType" className="h360-select" defaultValue="proof_capture">
         <option value="installation">Installation</option>
         <option value="removal">Removal</option>
         <option value="inspection">Inspection</option>
         <option value="maintenance">Maintenance</option>
         <option value="proof_capture">Proof of display</option>
       </select>
-      <select name="assignedTo" className="h-8 rounded-lg border px-2 text-sm">
+      <select name="assignedTo" className="h360-select">
         <option value="">Unassigned</option>
         {techs.map((t) => (
           <option key={t.id} value={t.id}>

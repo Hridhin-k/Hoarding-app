@@ -12,6 +12,7 @@ import {
   type FieldJobType,
 } from "@/lib/types/enums";
 import { cn } from "@/lib/utils";
+import { formatFaceIdentity } from "@/lib/boards/format";
 
 export default async function FieldHomePage({
   searchParams,
@@ -69,10 +70,10 @@ export default async function FieldHomePage({
             key={key}
             href={`/field?tab=${key}`}
             className={cn(
-              "px-2 py-3 text-center text-xs",
+              "rounded-md px-2 py-3 text-center text-xs",
               active === key
-                ? "rounded-full bg-accent font-medium text-accent-foreground"
-                : "rounded-full bg-card text-muted-foreground ring-1 ring-border",
+                ? "bg-accent font-medium text-accent-foreground"
+                : "bg-card text-muted-foreground ring-1 ring-border",
             )}
           >
             <div>{label}</div>
@@ -99,18 +100,21 @@ export default async function FieldHomePage({
             const face = Array.isArray(job.board_faces) ? job.board_faces[0] : job.board_faces;
             return (
               <li key={job.id}>
-                <Link href={`/field/jobs/${job.id}`} className="block rounded-lg border border-border bg-card p-4 shadow-sm">
+                <Link href={`/field/jobs/${job.id}`} className="block rounded-md border border-border bg-card p-4">
                   <div className="flex items-start justify-between gap-2">
                     <div className="text-xs uppercase tracking-wide text-neutral-500">
                       {FIELD_JOB_TYPE_LABELS[job.job_type as FieldJobType]}
                     </div>
-                    <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] capitalize text-neutral-700">
+                    <span className="rounded-md bg-muted px-2 py-0.5 text-[11px] capitalize text-foreground">
                       {FIELD_JOB_PRIORITY_LABELS[job.priority as FieldJobPriority]}
                     </span>
                   </div>
                   <div className="mt-1 text-base font-semibold">{board?.name}</div>
                   <div className="text-sm text-neutral-600">
-                    Face: {face?.face_label || "Board-level"} · {[board?.locality, board?.city].filter(Boolean).join(", ")}
+                    {formatFaceIdentity({ boardName: board?.name, faceLabel: face?.face_label })}
+                    {board?.locality || board?.city
+                      ? ` · ${[board?.locality, board?.city].filter(Boolean).join(", ")}`
+                      : ""}
                   </div>
                   <div className="mt-3 flex items-center justify-between text-sm">
                     <span>

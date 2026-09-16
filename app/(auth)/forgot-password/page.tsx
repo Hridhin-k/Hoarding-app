@@ -2,7 +2,7 @@ import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
 
 export default function ForgotPasswordPage() {
   return (
-    <div className="w-full max-w-sm rounded-xl border bg-white p-6 shadow-sm">
+    <div className="w-full max-w-sm rounded-md border bg-card p-6">
       <div className="mb-6">
         <div className="text-sm font-medium text-muted-foreground">
           <span className="text-primary">HOARDINGS</span>360

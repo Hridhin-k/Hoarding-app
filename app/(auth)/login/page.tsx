@@ -7,12 +7,9 @@ export default async function LoginPage({
 }) {
   const { next, checkEmail, error } = await searchParams;
   return (
-    <div className="w-full max-w-sm rounded-xl border bg-white p-6 shadow-sm">
+    <div className="w-full max-w-sm rounded-md border bg-card p-6">
       <div className="mb-6">
-        <div className="text-sm font-medium text-muted-foreground">
-          <span className="text-primary">HOARDINGS</span>360
-        </div>
-        <h1 className="mt-2 text-xl font-semibold">
+        <h1 className="text-xl font-semibold tracking-tight">
           {next?.startsWith("/platform") ? "Sign in to platform operations" : "Sign in"}
         </h1>
         {checkEmail ? (

@@ -42,7 +42,7 @@ export function FaceForm({
 
   return (
     <form
-      className="grid gap-3 rounded-xl border p-4 sm:grid-cols-4"
+      className="grid gap-3 rounded-md border p-4 sm:grid-cols-4"
       onSubmit={async (event) => {
         event.preventDefault();
         if (!canEdit) return;
@@ -121,7 +121,7 @@ export function FaceForm({
         <select
           id={`illumination-${face?.id ?? "new"}`}
           name="illumination"
-          className="h-8 w-full rounded-lg border px-2 text-sm"
+          className="h360-select w-full"
           defaultValue={face?.illumination ?? "front_lit"}
           disabled={!canEdit || archived}
         >

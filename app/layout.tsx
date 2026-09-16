@@ -1,4 +1,4 @@
-import { Roboto, Roboto_Mono } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,16 +6,14 @@ import { ClearRootServiceWorker } from "@/components/pwa/clear-root-service-work
 import "./globals.css";
 import type { Metadata } from "next";
 
-const sans = Roboto({
+const sans = Geist({
   variable: "--font-sans",
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
 });
 
-const mono = Roboto_Mono({
+const mono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
-  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
@@ -29,9 +27,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${sans.variable} ${mono.variable} h-full antialiased`} suppressHydrationWarning>
+    <html lang="en" className={`${sans.variable} ${mono.variable} h-full`} suppressHydrationWarning>
       <body className="min-h-full bg-background font-sans text-foreground">
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+        <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" enableSystem={false}>
           <TooltipProvider>
             <ClearRootServiceWorker />
             {children}

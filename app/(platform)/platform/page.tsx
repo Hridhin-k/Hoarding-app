@@ -33,7 +33,7 @@ export default async function PlatformOverviewPage() {
       />
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((card) => (
-          <Link key={card.label} href={card.href} className="rounded-xl border bg-card p-4 hover:bg-muted/40">
+          <Link key={card.label} href={card.href} className="rounded-md border bg-card p-4 hover:bg-muted/40">
             <div className="text-xs text-muted-foreground">{card.label}</div>
             <div className="mt-2 text-2xl font-semibold tabular-nums">{card.value}</div>
           </Link>

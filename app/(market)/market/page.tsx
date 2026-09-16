@@ -2,18 +2,17 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { MarketSearch } from "@/components/market/search";
 import { MarketplaceMap } from "@/components/market/marketplace-map";
+import { MarketBrowseLayout } from "@/components/market/browse-layout";
+import { MarketListingCard } from "@/components/market/listing-card";
+import { EmptyState } from "@/components/empty-state";
 import {
-  availabilityLabel,
-  formatCardRate,
+  activeMarketplaceFilters,
+  getMarketplaceCoverPhotos,
   groupListingsByBoard,
+  marketplaceHref,
+  marketplaceHrefWithout,
   searchMarketplaceListings,
 } from "@/lib/marketplace";
-import {
-  ILLUMINATION_LABELS,
-  STRUCTURE_TYPE_LABELS,
-  type IlluminationType,
-  type StructureType,
-} from "@/lib/types/enums";
 
 export const metadata: Metadata = {
   title: "Marketplace",
@@ -36,6 +35,8 @@ export default async function MarketPage({
   const params = await searchParams;
   const { listings, total, page, pageSize } = await searchMarketplaceListings(params);
   const boards = groupListingsByBoard(listings);
+  const covers = await getMarketplaceCoverPhotos(boards.map((board) => board.boardId));
+  const chips = activeMarketplaceFilters(params);
   const mapBoards = boards
     .filter((b) => b.latitude != null && b.longitude != null)
     .map((b) => ({
@@ -51,67 +52,102 @@ export default async function MarketPage({
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
-  return (
-    <main className="mx-auto grid max-w-6xl gap-6 px-4 py-6 lg:grid-cols-[300px_1fr]">
-      <MarketSearch values={params} />
-      <div className="space-y-4">
+  const list = (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-end justify-between gap-2">
         <div>
+          <p className="text-sm font-medium">
+            {total} published face{total === 1 ? "" : "s"}
+            {boards.length ? ` · ${boards.length} site${boards.length === 1 ? "" : "s"} on this page` : ""}
+          </p>
           <p className="text-sm text-muted-foreground">
-            {total} published face{total === 1 ? "" : "s"} · page {page} of {totalPages}
+            Page {page} of {totalPages}. Photos, rates, and availability are what media owners have published.
           </p>
         </div>
-        <MarketplaceMap boards={mapBoards} />
-        <ul className="space-y-3">
-          {listings.map((row) => (
-            <li key={row.face_id} className="h360-listing">
-              <Link href={`/market/${row.board_id}`} className="block">
-                <div className="text-xs text-muted-foreground">{row.board_code}</div>
-                <div className="text-base font-medium">{row.board_name}</div>
-                <div className="mt-1 text-sm text-muted-foreground">
-                  {[row.locality, row.city].filter(Boolean).join(", ")} ·{" "}
-                  {STRUCTURE_TYPE_LABELS[row.structure_type as StructureType]}
-                </div>
-                <div className="mt-3 rounded-lg bg-muted/60 p-3 text-sm">
-                  <div className="font-medium">{row.face_label}</div>
-                  <div>
-                    {row.width} × {row.height} {row.unit}
-                    {row.direction ? ` · ${row.direction}` : ""} ·{" "}
-                    {ILLUMINATION_LABELS[row.illumination as IlluminationType]}
-                  </div>
-                  <div className="mt-1 font-medium">{formatCardRate(row.card_rate)}</div>
-                  <div className="text-muted-foreground">
-                    {availabilityLabel(row.occupancy_dimension, row.available_from)}
-                  </div>
-                </div>
+      </div>
+      {chips.length ? (
+        <ul className="flex flex-wrap gap-1.5" aria-label="Active filters">
+          {chips.map((chip) => (
+            <li key={chip.key}>
+              <Link
+                href={marketplaceHrefWithout(params, chip.key)}
+                className="h360-chip-active inline-flex h-8 items-center rounded-md px-3 text-sm"
+              >
+                {chip.label}
+                <span className="sr-only"> Remove filter</span>
+                <span aria-hidden="true" className="ml-1.5 text-muted-foreground">
+                  ×
+                </span>
               </Link>
             </li>
           ))}
-          {!listings.length ? (
-            <li className="rounded-xl border border-dashed bg-white p-8 text-sm text-muted-foreground">
-              No marketplace inventory matches those filters.
-            </li>
-          ) : null}
+          <li>
+            <Link href="/market" className="h360-chip">
+              Clear all
+            </Link>
+          </li>
         </ul>
-        {totalPages > 1 ? (
-          <nav className="flex gap-2 text-sm" aria-label="Pagination">
-            {page > 1 ? (
-              <Link
-                href={`/market?${new URLSearchParams({ ...params, page: String(page - 1) } as Record<string, string>).toString()}`}
-                className="rounded-lg border px-3 py-1.5"
-              >
-                Previous
-              </Link>
-            ) : null}
-            {page < totalPages ? (
-              <Link
-                href={`/market?${new URLSearchParams({ ...params, page: String(page + 1) } as Record<string, string>).toString()}`}
-                className="rounded-lg border px-3 py-1.5"
-              >
-                Next
-              </Link>
-            ) : null}
-          </nav>
+      ) : null}
+      <ul className="space-y-3">
+        {boards.map((board) => {
+          const cover = covers.get(board.boardId);
+          return (
+            <li key={board.boardId}>
+              <MarketListingCard
+                boardId={board.boardId}
+                boardName={board.boardName}
+                boardCode={board.boardCode}
+                city={board.city}
+                locality={board.locality}
+                landmark={board.faces[0]?.landmark ?? null}
+                structureType={board.structureType}
+                faces={board.faces}
+                photoUrl={cover?.url}
+                photoCaption={cover?.caption}
+              />
+            </li>
+          );
+        })}
+        {!boards.length ? (
+          <li>
+            <EmptyState
+              title="No inventory matches those filters"
+              description="Try a different district, clear availability, or search a locality. Only published, eligible faces appear here."
+              actionHref="/market"
+              actionLabel="Reset filters"
+            />
+          </li>
         ) : null}
+      </ul>
+      {totalPages > 1 ? (
+        <nav className="flex items-center justify-between gap-2 text-sm" aria-label="Pagination">
+          {page > 1 ? (
+            <Link href={marketplaceHref(params, { page: String(page - 1) })} className="h360-chip">
+              Previous
+            </Link>
+          ) : (
+            <span />
+          )}
+          <span className="text-muted-foreground">
+            {page} / {totalPages}
+          </span>
+          {page < totalPages ? (
+            <Link href={marketplaceHref(params, { page: String(page + 1) })} className="h360-chip">
+              Next
+            </Link>
+          ) : (
+            <span />
+          )}
+        </nav>
+      ) : null}
+    </div>
+  );
+
+  return (
+    <main className="mx-auto max-w-7xl px-4 py-6">
+      <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
+        <MarketSearch values={params} activeCount={chips.length} />
+        <MarketBrowseLayout list={list} map={<MarketplaceMap boards={mapBoards} />} />
       </div>
     </main>
   );

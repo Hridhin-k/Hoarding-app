@@ -46,14 +46,14 @@ export function OccupancyForm({
   }
 
   return (
-    <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)} className="space-y-3">
-      <TabsList>
+    <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)} className="gap-3">
+      <TabsList className="h-auto w-full flex-wrap justify-start">
         <TabsTrigger value="occupied">Occupancy</TabsTrigger>
         <TabsTrigger value="booked_future">Future booking</TabsTrigger>
         <TabsTrigger value="hold">Hold</TabsTrigger>
         <TabsTrigger value="block">Block dates</TabsTrigger>
       </TabsList>
-      <form className="grid gap-3 rounded-xl border bg-card p-4 sm:grid-cols-3" onSubmit={submit}>
+      <form className="grid gap-4 rounded-md border bg-card p-4 sm:grid-cols-3" onSubmit={submit}>
         <TabsContent value={mode} className="contents">
           <div className="space-y-1.5 sm:col-span-3">
             <p className="text-sm text-muted-foreground">
@@ -67,8 +67,8 @@ export function OccupancyForm({
             </p>
           </div>
           <div className="space-y-1.5">
-            <Label>Face</Label>
-            <select name="faceId" required className="h-8 w-full rounded-lg border px-2 text-sm">
+            <Label>Board / face</Label>
+            <select name="faceId" required className="h360-select w-full">
               {faces.map((face) => (
                 <option key={face.id} value={face.id}>
                   {face.label}

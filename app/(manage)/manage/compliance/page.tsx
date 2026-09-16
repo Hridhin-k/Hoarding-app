@@ -60,12 +60,16 @@ export default async function CompliancePage({
         description="Track permits and clearances per board. Mandatory expired items block marketplace publication."
       />
       <ComplianceSummaryCards counts={counts} activeStatus={status} />
-      <div className="flex flex-wrap gap-2 text-sm">
-        <a href="/manage/compliance" className="rounded-full border px-3 py-1">
+      <div className="flex flex-wrap gap-2">
+        <a href="/manage/compliance" className={`h360-chip${!status ? " h360-chip-active" : ""}`}>
           All records
         </a>
         {(["valid", "expiring", "expired", "missing"] as const).map((value) => (
-          <a key={value} href={`?status=${value}`} className="rounded-full border px-3 py-1">
+          <a
+            key={value}
+            href={`?status=${value}`}
+            className={`h360-chip${status === value ? " h360-chip-active" : ""}`}
+          >
             {value === "expiring" ? "Expiring soon" : value.charAt(0).toUpperCase() + value.slice(1)}
           </a>
         ))}

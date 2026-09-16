@@ -18,7 +18,7 @@ export function InviteForm() {
       }}
     >
       <Input name="email" type="email" placeholder="work@company.com" required className="max-w-xs" />
-      <select name="role" className="h-8 rounded-lg border px-2 text-sm" defaultValue="SALES">
+      <select name="role" className="h360-select" defaultValue="SALES">
         <option value="ADMIN">Admin</option>
         <option value="OPS_MANAGER">Operations</option>
         <option value="SALES">Sales</option>

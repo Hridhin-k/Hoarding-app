@@ -1,6 +1,6 @@
 ---
 name: ui
-description: HOARDINGS360 B2B UI patterns for Manage, Market, and Field. Use when building pages, tables, forms, status badges, empty/error states, or choosing shadcn components versus custom UI.
+description: HOARDINGS360 B2B UI patterns for Manage, Market, Field, and Platform. Use when building pages, tables, forms, status badges, empty/error states, or choosing shadcn components versus custom UI.
 ---
 
 # HOARDINGS360 UI SKILL
@@ -13,15 +13,16 @@ Use this skill for interface work.
 | --- | --- | --- |
 | Manage | `/manage` | desktop-first, operational |
 | Market | `/market` | mobile-first, visual, SEO |
-| Field | `/field` | mobile-first, few taps |
+| Field | `/field` | mobile-first, few taps, outdoor |
+| Platform | `/platform` | desktop-first, internal |
 
 ## Visual bar
 
-Chrome / Google web UI: light gray page, white surfaces, `#1a73e8` primary, quiet borders.
+Light-only operational UI. Warm paper (`#F4F3EF`), white surfaces, charcoal type, quiet borders (`#E2DFD6`), restrained blue (`#1F4B99`). Geist. 6px radius.
 
-Professional, dense, trustworthy. Information hierarchy over decoration.
+No gradients, neon, dark mode, glass, glow, or rounded-full nav pills.
 
-Do not use loud gradients, glassmorphism, grain, night-city palettes, or inverted black nav pills.
+Tokens: `app/globals.css`. Shells: `components/manage/sidebar.tsx`, `components/market/site-header.tsx`, `components/field/field-shell.tsx`, `components/platform/sidebar.tsx`.
 
 ## Components
 
@@ -37,7 +38,7 @@ loading, empty, error, success, permission denied, no results.
 
 ## Status
 
-Lifecycle, compliance, and occupancy are independent. Show them as separate badges. Never collapse into one "board status".
+Lifecycle, compliance, and occupancy are independent. Show them as separate badges with labels. Never collapse into one "board status".
 
 ## Accessibility
 

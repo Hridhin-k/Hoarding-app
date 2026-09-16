@@ -11,7 +11,7 @@ export function InspectTenantForm({ tenantId, tenantName }: { tenantId: string; 
   const [state, action, pending] = useActionState(bound, null);
 
   return (
-    <form action={action} className="max-w-lg space-y-3 rounded-xl border bg-card p-4">
+    <form action={action} className="max-w-lg space-y-3 rounded-md border bg-card p-4">
       <p className="text-sm text-muted-foreground">
         Inspecting {tenantName} is time-boxed to 30 minutes and is written to the platform audit log. Give a
         support reason first.

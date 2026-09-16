@@ -16,7 +16,7 @@ export default async function TeamPage() {
     <div className="space-y-6">
       <PageHeader title="Team" description="Roles control access. Technicians never see financial admin." />
       <InviteForm />
-      <ul className="divide-y rounded-xl border bg-card">
+      <ul className="divide-y rounded-md border bg-card">
         {(members ?? []).map((m) => {
           const profile = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles;
           return (

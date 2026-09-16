@@ -15,6 +15,7 @@ export const publicEnvSchema = z.object({
     z.string().url().optional(),
   ),
   NEXT_PUBLIC_MAP_PROVIDER: z.enum(["maplibre", "google"]).default("maplibre"),
+  NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: optionalString,
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: optionalString,
 });
 
@@ -34,6 +35,7 @@ function publicEnvInput() {
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
     NEXT_PUBLIC_MAP_PROVIDER: process.env.NEXT_PUBLIC_MAP_PROVIDER || "maplibre",
+    NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
   };
 }

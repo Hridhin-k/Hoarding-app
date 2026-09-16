@@ -29,7 +29,7 @@ export function CreateComplianceForm({ boards }: Props) {
 
   return (
     <form
-      className="grid gap-4 rounded-xl border bg-card p-4 md:grid-cols-2"
+      className="grid gap-4 rounded-md border bg-card p-4 md:grid-cols-2"
       onSubmit={async (event) => {
         event.preventDefault();
         setError(null);

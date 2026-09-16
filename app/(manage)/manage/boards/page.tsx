@@ -71,7 +71,7 @@ export default async function BoardsPage({
       <form className="flex flex-wrap gap-2">
         <Input name="q" placeholder="Search code, name, locality" defaultValue={params.q} className="max-w-xs" />
         <PlaceFilters district={params.district} city={params.city} />
-        <select name="lifecycle" defaultValue={params.lifecycle ?? ""} className="h-8 rounded-lg border px-2 text-sm">
+        <select name="lifecycle" defaultValue={params.lifecycle ?? ""} className="h360-select">
           <option value="">All lifecycles</option>
           <option value="draft">Draft</option>
           <option value="active">Active</option>
@@ -79,7 +79,7 @@ export default async function BoardsPage({
           <option value="blocked">Blocked</option>
           <option value="retired">Retired</option>
         </select>
-        <select name="type" defaultValue={params.type ?? ""} className="h-8 rounded-lg border px-2 text-sm">
+        <select name="type" defaultValue={params.type ?? ""} className="h360-select">
           <option value="">All structures</option>
           {Object.entries(STRUCTURE_TYPE_LABELS).map(([value, label]) => (
             <option key={value} value={value}>
@@ -96,18 +96,17 @@ export default async function BoardsPage({
         <EmptyState title="Could not load boards" description="Try refreshing the page." />
       ) : !boards?.length ? (
         <EmptyState
-          title={params.q || params.city || params.lifecycle || params.type ? "No boards match" : "No boards yet"}
+          title={params.q || params.city || params.lifecycle || params.type ? "No boards match these filters." : "Your inventory starts here."}
           description={
             params.q || params.city || params.lifecycle || params.type
               ? "Adjust filters or clear search to see more inventory."
-              : "Add your first hoarding to start building your inventory."
+              : "Add the physical structure first. Faces are what you sell."
           }
           actionHref={can(ctx, "boards.create") ? "/manage/boards/new" : undefined}
           actionLabel={can(ctx, "boards.create") ? "Add board" : undefined}
         />
       ) : (
-        <div className="rounded-xl border bg-card">
-          <Table>
+        <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Code</TableHead>
@@ -144,7 +143,6 @@ export default async function BoardsPage({
               })}
             </TableBody>
           </Table>
-        </div>
       )}
 
       {count && count > pageSize ? (

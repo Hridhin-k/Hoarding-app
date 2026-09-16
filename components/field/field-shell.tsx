@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { CalendarDays, QrCode, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { BrandMark } from "@/components/brand/mark";
 import { OfflineBanner } from "@/components/field/offline-banner";
 
 export function FieldShell({
@@ -58,15 +59,13 @@ export function FieldShell({
     <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-background supports-[padding:max(0px)]:pb-[env(safe-area-inset-bottom)]">
       <header className="h360-toolbar flex items-center justify-between gap-3 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
         <div className="min-w-0">
-          <div className="text-sm font-medium">
-            <span className="text-primary">H360</span> Field
-          </div>
-          <div className="truncate text-sm text-foreground">{name}</div>
+          <BrandMark compact className="text-sm" />
+          <div className="truncate text-sm font-medium text-foreground">{name}</div>
           <div className="truncate text-xs text-muted-foreground">{tenantName}</div>
         </div>
         <Link
           href="/field/profile"
-          className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+          className="inline-flex size-11 shrink-0 items-center justify-center rounded-md border bg-card text-foreground"
           aria-label="Open profile and sign out"
         >
           <User className="size-5" />
@@ -84,8 +83,8 @@ export function FieldShell({
             key={item.href}
             href={item.href}
             className={cn(
-              "flex min-h-12 flex-col items-center justify-center gap-1 rounded-full py-2 text-xs font-medium",
-              item.active ? "text-primary" : "text-muted-foreground hover:text-foreground",
+              "flex min-h-12 flex-col items-center justify-center gap-1 rounded-md py-2 text-xs font-medium",
+              item.active ? "bg-accent text-accent-foreground" : "text-muted-foreground",
             )}
           >
             <item.icon className="size-5" aria-hidden />

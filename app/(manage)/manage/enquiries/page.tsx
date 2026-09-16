@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { ENQUIRY_STATUS_LABELS, type EnquiryStatus } from "@/lib/types/enums";
-import { cn } from "@/lib/utils";
+import { formatFaceIdentity } from "@/lib/boards/format";
 
 const STATUSES: Array<EnquiryStatus | ""> = [
   "",
@@ -58,7 +58,7 @@ export default async function EnquiriesPage({
           placeholder="Search name, company, email, phone"
           className="max-w-sm"
         />
-        <select name="status" defaultValue={status ?? ""} className="h-8 rounded-lg border px-2 text-sm">
+        <select name="status" defaultValue={status ?? ""} className="h360-select">
           <option value="">All statuses</option>
           {STATUSES.filter(Boolean).map((value) => (
             <option key={value} value={value}>
@@ -66,19 +66,19 @@ export default async function EnquiriesPage({
             </option>
           ))}
         </select>
-        <select name="source" defaultValue={source ?? ""} className="h-8 rounded-lg border px-2 text-sm">
+        <select name="source" defaultValue={source ?? ""} className="h360-select">
           <option value="">All sources</option>
           <option value="marketplace">Marketplace</option>
           <option value="direct">Direct</option>
           <option value="referral">Referral</option>
           <option value="other">Other</option>
         </select>
-        <select name="assigned" defaultValue={assigned ?? ""} className="h-8 rounded-lg border px-2 text-sm">
+        <select name="assigned" defaultValue={assigned ?? ""} className="h360-select">
           <option value="">Anyone</option>
           <option value="me">Assigned to me</option>
           <option value="unassigned">Unassigned</option>
         </select>
-        <button type="submit" className={cn("rounded-lg border px-3 text-sm font-medium hover:bg-muted")}>
+        <button type="submit" className="h360-chip">
           Filter
         </button>
       </form>
@@ -108,7 +108,7 @@ export default async function EnquiriesPage({
                     <div className="text-xs text-muted-foreground">{row.company_name || row.email}</div>
                   </TableCell>
                   <TableCell>
-                    {board?.name} {face?.face_label}
+                    {formatFaceIdentity({ boardName: board?.name, faceLabel: face?.face_label })}
                   </TableCell>
                   <TableCell>{row.source}</TableCell>
                   <TableCell>{ENQUIRY_STATUS_LABELS[row.status as EnquiryStatus]}</TableCell>

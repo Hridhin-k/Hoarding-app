@@ -1,5 +1,6 @@
 import { endOfDay, startOfDay } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
+import { formatFaceIdentity } from "@/lib/boards/format";
 import { vacancyMessage } from "@/lib/occupancy/status";
 
 export type DashboardStats = {
@@ -66,7 +67,10 @@ export async function loadUpcomingVacancies(tenantId: string, limit = 8): Promis
     boardCode: row.board_code,
     endDate: row.end_date,
     availableFrom: row.available_from,
-    message: vacancyMessage(row.face_label, new Date(row.available_from)),
+    message: vacancyMessage(
+      formatFaceIdentity({ boardName: row.board_name, faceLabel: row.face_label }),
+      new Date(row.available_from),
+    ),
   }));
 }
 
@@ -124,14 +128,14 @@ export async function loadTodaysFieldJobs(tenantId: string, limit = 8) {
 
 export function dashboardMetricCards(stats: DashboardStats) {
   return [
-    { label: "Total Boards", value: stats.boards, href: "/manage/boards" },
-    { label: "Total Faces", value: stats.faces, href: "/manage/boards" },
-    { label: "Occupied Faces", value: stats.occupied, href: "/manage/occupancy" },
-    { label: "Vacant Faces", value: stats.vacant, href: "/manage/occupancy" },
-    { label: "Faces Becoming Vacant", value: stats.becoming_vacant, href: "/manage/occupancy" },
-    { label: "Expiring Compliance", value: stats.permits_expiring, href: "/manage/compliance?status=expiring" },
-    { label: "Expired Compliance", value: stats.permits_expired, href: "/manage/compliance?status=expired" },
-    { label: "Marketplace Enquiries", value: stats.marketplace_enquiries, href: "/manage/enquiries?source=marketplace" },
-    { label: "Pending Field Jobs", value: stats.jobs_pending, href: "/manage/field-jobs" },
+    { label: "Boards", value: stats.boards, href: "/manage/boards" },
+    { label: "Faces", value: stats.faces, href: "/manage/boards" },
+    { label: "Occupied", value: stats.occupied, href: "/manage/occupancy" },
+    { label: "Vacant", value: stats.vacant, href: "/manage/occupancy" },
+    { label: "Becoming vacant", value: stats.becoming_vacant, href: "/manage/occupancy" },
+    { label: "Expiring", value: stats.permits_expiring, href: "/manage/compliance?status=expiring" },
+    { label: "Expired", value: stats.permits_expired, href: "/manage/compliance?status=expired" },
+    { label: "Enquiries", value: stats.marketplace_enquiries, href: "/manage/enquiries?source=marketplace" },
+    { label: "Field jobs", value: stats.jobs_pending, href: "/manage/field-jobs" },
   ];
 }

@@ -6,4 +6,5 @@ export {
   MAP_STREETS_STYLE,
   mapStyleForBasemap,
 } from "./style";
+export { resolveStreetViewPoint, streetViewEmbedUrl, streetViewOpenUrl } from "./street-view";
 export type { GeoPoint, GeocodeResult, MapBasemap, MapMarker, MapProviderName } from "./types";

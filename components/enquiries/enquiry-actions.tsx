@@ -31,11 +31,11 @@ export function EnquiryActions({
   const [pending, setPending] = useState(false);
 
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-xl border bg-card p-4">
+    <div className="flex flex-wrap items-center gap-2 rounded-md border bg-card p-4">
       <label className="text-sm text-muted-foreground">
         Status
         <select
-          className="ml-2 h-8 rounded-lg border px-2 text-sm"
+          className="h360-select ml-2"
           defaultValue={status}
           disabled={pending}
           onChange={async (event) => {
@@ -58,7 +58,7 @@ export function EnquiryActions({
       <label className="text-sm text-muted-foreground">
         Assign
         <select
-          className="ml-2 h-8 rounded-lg border px-2 text-sm"
+          className="h360-select ml-2"
           defaultValue={assignedTo ?? ""}
           disabled={pending}
           onChange={async (event) => {

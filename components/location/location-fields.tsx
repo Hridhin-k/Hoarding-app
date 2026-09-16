@@ -24,7 +24,7 @@ export type PlaceValue = {
   pincode: string;
 };
 
-const selectClass = "h-8 w-full rounded-lg border bg-background px-2 text-sm";
+const selectClass = "h360-select w-full";
 
 export function LocationFields({
   value,

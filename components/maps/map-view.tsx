@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { whileSuppressingAbortErrors } from "@/lib/maps/abort";
 import { DEFAULT_CENTER, mapStyleForBasemap } from "@/lib/maps/style";
+import { resolveStreetViewPoint } from "@/lib/maps/street-view";
 import type { MapBasemap, MapMarker } from "@/lib/maps/types";
+import { BasemapToggle } from "@/components/maps/basemap-toggle";
+import { StreetViewPane } from "@/components/maps/street-view-pane";
 
 export function MapView({
   markers,
@@ -14,6 +17,7 @@ export function MapView({
   onMarkerClick,
   interactive = true,
   className,
+  orientation = "beside",
 }: {
   markers: MapMarker[];
   center?: { lat: number; lng: number };
@@ -21,6 +25,7 @@ export function MapView({
   onMarkerClick?: (id: string) => void;
   interactive?: boolean;
   className?: string;
+  orientation?: "beside" | "stack";
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -28,7 +33,9 @@ export function MapView({
   const onMarkerClickRef = useRef(onMarkerClick);
   const [ready, setReady] = useState(false);
   const [basemap, setBasemap] = useState<MapBasemap>("satellite");
+  const [focusedId, setFocusedId] = useState<string | null>(null);
   const skipStyleSwap = useRef(true);
+  const paneClass = className ?? "h-[420px] w-full overflow-hidden rounded-xl border";
 
   useEffect(() => {
     onMarkerClickRef.current = onMarkerClick;
@@ -102,6 +109,7 @@ export function MapView({
       el.setAttribute("aria-label", marker.title);
       el.addEventListener("click", () => {
         map.easeTo({ center: [marker.lng, marker.lat], zoom: Math.max(map.getZoom(), 16), duration: 700 });
+        setFocusedId(marker.id);
         onMarkerClickRef.current?.(marker.id);
       });
       const instance = new maplibregl.Marker({ element: el })
@@ -117,25 +125,23 @@ export function MapView({
     }
   }, [markers, ready]);
 
+  const streetView = useMemo(
+    () => resolveStreetViewPoint({ center, markers, focusedId }),
+    [center, markers, focusedId],
+  );
+
   return (
-    <div className="relative">
-      <div ref={containerRef} className={className ?? "h-[420px] w-full overflow-hidden rounded-xl border"} />
-      <div className="absolute top-3 left-3 flex overflow-hidden rounded-full border bg-white/95 text-xs shadow-sm">
-        <button
-          type="button"
-          className={`px-3 py-1.5 ${basemap === "satellite" ? "bg-primary font-medium text-primary-foreground" : ""}`}
-          onClick={() => setBasemap("satellite")}
-        >
-          Satellite
-        </button>
-        <button
-          type="button"
-          className={`px-3 py-1.5 ${basemap === "streets" ? "bg-primary font-medium text-primary-foreground" : ""}`}
-          onClick={() => setBasemap("streets")}
-        >
-          Map
-        </button>
+    <div className={orientation === "stack" ? "grid gap-3" : "grid gap-3 lg:grid-cols-2"}>
+      <div className="relative">
+        <div ref={containerRef} className={paneClass} />
+        <BasemapToggle basemap={basemap} onChange={setBasemap} />
       </div>
+      <StreetViewPane
+        lat={streetView?.lat}
+        lng={streetView?.lng}
+        className={paneClass}
+        emptyLabel="Click a site on the map to open street view."
+      />
     </div>
   );
 }

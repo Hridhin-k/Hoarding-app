@@ -1,14 +1,18 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MapViewLazy } from "@/components/maps/map-view-lazy";
 import { EnquiryForm } from "@/components/market/enquiry-form";
+import { ListingGallery } from "@/components/market/listing-gallery";
+import { MarketEnquireBar } from "@/components/market/enquire-bar";
+import { OccupancyBadge } from "@/components/status/status-badge";
 import {
   availabilityLabel,
   formatCardRate,
+  formatFaceSize,
   getMarketplaceBoard,
   getMarketplaceBoardPhotos,
+  startingRate,
 } from "@/lib/marketplace";
 import { getSiteUrl } from "@/lib/env";
 import {
@@ -53,128 +57,162 @@ export default async function MarketBoardPage({ params }: Props) {
   ]);
   if (!faces?.length) notFound();
   const board = faces[0];
-  const locationLine = [board.landmark, board.locality, board.city, board.district, board.state, board.pincode]
-    .filter(Boolean)
-    .join(", ");
+  const locationLine = [
+    ...new Set(
+      [board.landmark, board.locality, board.city, board.district, board.state, board.pincode].filter(
+        (part): part is string => Boolean(part),
+      ),
+    ),
+  ].join(", ");
+  const fromRate = startingRate(faces.map((face) => face.card_rate));
+  const visiblePhotos = photos.filter((photo) => photo.url).map((photo) => ({
+    id: photo.id,
+    url: photo.url!,
+    caption: photo.caption,
+  }));
 
   return (
-    <main className="mx-auto max-w-5xl space-y-6 px-4 py-6">
+    <main className="mx-auto max-w-7xl space-y-6 px-4 py-6 pb-24 lg:pb-8">
       <div>
-        <Link href="/market" className="text-sm text-muted-foreground hover:text-foreground">
-          ← Marketplace
-        </Link>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">{board.board_name}</h1>
-        <p className="text-muted-foreground">{locationLine}</p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {STRUCTURE_TYPE_LABELS[board.structure_type as StructureType]} · {board.board_code}
-        </p>
+        <nav className="text-sm text-muted-foreground" aria-label="Breadcrumb">
+          <Link href="/market" className="hover:text-foreground">
+            Marketplace
+          </Link>
+          <span aria-hidden="true"> / </span>
+          <span className="text-foreground">{board.city}</span>
+        </nav>
+        <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-medium text-muted-foreground">
+              {STRUCTURE_TYPE_LABELS[board.structure_type as StructureType]} · {board.board_code}
+            </p>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">{board.board_name}</h1>
+            <p className="mt-1 text-muted-foreground">{locationLine}</p>
+          </div>
+          <div className="hidden text-right lg:block">
+            <p className="text-xs text-muted-foreground">{faces.length > 1 ? "From" : "Card rate"}</p>
+            <p className="tabular-inr text-xl font-semibold">{formatCardRate(fromRate)}</p>
+            <a href="#faces" className="mt-1 inline-block text-sm font-medium text-primary hover:underline">
+              Enquire about a face
+            </a>
+          </div>
+        </div>
       </div>
 
-      {photos.some((p) => p.url) ? (
-        <div className="grid gap-2 sm:grid-cols-2">
-          {photos
-            .filter((p) => p.url)
-            .map((photo) => (
-              <div key={photo.id} className="relative h-56 overflow-hidden rounded-xl border bg-white">
-                <Image
-                  src={photo.url!}
-                  alt={photo.caption || board.board_name}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 640px) 100vw, 50vw"
-                  unoptimized
-                />
-              </div>
-            ))}
-        </div>
-      ) : (
-        <div className="flex h-40 items-center justify-center rounded-xl border border-dashed bg-white text-sm text-muted-foreground">
-          Photos will appear when the media owner publishes site images.
-        </div>
-      )}
+      <ListingGallery photos={visiblePhotos} boardName={board.board_name} />
 
-      {board.latitude != null && board.longitude != null ? (
-        <section className="space-y-2">
-          <h2 className="text-sm font-medium">Location</h2>
-          <MapViewLazy
-            markers={[
-              {
-                id: board.board_id,
-                lat: Number(board.latitude),
-                lng: Number(board.longitude),
-                title: board.board_name,
-              },
-            ]}
-            center={{ lat: Number(board.latitude), lng: Number(board.longitude) }}
-            zoom={14}
-            className="h-[320px] w-full overflow-hidden rounded-xl border"
-          />
-          <p className="text-sm text-muted-foreground">{locationLine}</p>
-        </section>
-      ) : null}
-
-      <section className="rounded-xl border bg-white p-5">
-        <h2 className="text-lg font-medium">Board information</h2>
-        <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
-          <div>
-            <dt className="text-muted-foreground">Structure</dt>
-            <dd>{STRUCTURE_TYPE_LABELS[board.structure_type as StructureType]}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground">City</dt>
-            <dd>{board.city}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground">Locality</dt>
-            <dd>{board.locality || "—"}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground">Landmark</dt>
-            <dd>{board.landmark || "—"}</dd>
-          </div>
-        </dl>
-      </section>
-
-      <div className="space-y-4">
-        <h2 className="text-lg font-medium">Faces</h2>
-        {faces.map((face) => (
-          <section key={face.face_id} id={`face-${face.face_id}`} className="rounded-xl border bg-white p-5">
-            <h3 className="text-base font-medium">{face.face_label}</h3>
-            <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+        <div className="space-y-6">
+          <section className="rounded-md border bg-card p-5">
+            <h2 className="text-base font-semibold">Site</h2>
+            <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
               <div>
-                <dt className="text-muted-foreground">Dimensions</dt>
-                <dd>
-                  {face.width} × {face.height} {face.unit}
-                  {face.area_sqft ? ` (${Number(face.area_sqft).toFixed(0)} sq ft)` : ""}
-                </dd>
+                <dt className="text-muted-foreground">Structure</dt>
+                <dd className="font-medium">{STRUCTURE_TYPE_LABELS[board.structure_type as StructureType]}</dd>
               </div>
               <div>
-                <dt className="text-muted-foreground">Direction</dt>
-                <dd>{face.direction || "—"}</dd>
+                <dt className="text-muted-foreground">Faces on this listing</dt>
+                <dd className="font-medium">{faces.length}</dd>
               </div>
               <div>
-                <dt className="text-muted-foreground">Illumination</dt>
-                <dd>{ILLUMINATION_LABELS[face.illumination as IlluminationType]}</dd>
+                <dt className="text-muted-foreground">Locality</dt>
+                <dd className="font-medium">{board.locality || "—"}</dd>
               </div>
               <div>
-                <dt className="text-muted-foreground">Pricing</dt>
-                <dd className="font-medium">{formatCardRate(face.card_rate)}</dd>
+                <dt className="text-muted-foreground">Landmark</dt>
+                <dd className="font-medium">{board.landmark || "—"}</dd>
               </div>
-              <div className="sm:col-span-2">
-                <dt className="text-muted-foreground">Availability</dt>
-                <dd>{availabilityLabel(face.occupancy_dimension, face.available_from)}</dd>
-              </div>
-              {face.visibility_notes ? (
-                <div className="sm:col-span-2">
-                  <dt className="text-muted-foreground">Site notes</dt>
-                  <dd>{face.visibility_notes}</dd>
-                </div>
-              ) : null}
             </dl>
-            <EnquiryForm faceId={face.face_id} faceLabel={face.face_label} />
           </section>
-        ))}
+
+          {board.latitude != null && board.longitude != null ? (
+            <section className="space-y-2">
+              <div>
+                <h2 className="text-base font-semibold">Location & street view</h2>
+                <p className="text-sm text-muted-foreground">Confirm the junction before you enquire.</p>
+              </div>
+              <MapViewLazy
+                markers={[
+                  {
+                    id: board.board_id,
+                    lat: Number(board.latitude),
+                    lng: Number(board.longitude),
+                    title: board.board_name,
+                  },
+                ]}
+                center={{ lat: Number(board.latitude), lng: Number(board.longitude) }}
+                zoom={15}
+                className="h-[280px] w-full overflow-hidden rounded-md border lg:h-[320px]"
+              />
+              <p className="text-sm text-muted-foreground">{locationLine}</p>
+            </section>
+          ) : null}
+
+          <section id="faces" className="space-y-4 scroll-mt-20">
+            <div>
+              <h2 className="text-base font-semibold">Faces for enquiry</h2>
+              <p className="text-sm text-muted-foreground">
+                Each face is sold independently. Occupancy here is live published availability, not a combined board
+                status.
+              </p>
+            </div>
+            {faces.map((face) => (
+              <article key={face.face_id} id={`face-${face.face_id}`} className="scroll-mt-20 rounded-md border bg-card p-5">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <h3 className="text-base font-semibold">{face.face_label}</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {formatFaceSize(face.width, face.height, face.unit, face.area_sqft)}
+                      {face.direction ? ` · ${face.direction}` : ""} ·{" "}
+                      {ILLUMINATION_LABELS[face.illumination as IlluminationType]}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="tabular-inr text-base font-semibold">{formatCardRate(face.card_rate)}</p>
+                    <div className="mt-1 flex justify-end">
+                      <OccupancyBadge value={face.occupancy_dimension} />
+                    </div>
+                  </div>
+                </div>
+                <p className="mt-3 text-sm text-muted-foreground">
+                  {availabilityLabel(face.occupancy_dimension, face.available_from)}
+                </p>
+                {face.visibility_notes ? (
+                  <p className="mt-2 text-sm">{face.visibility_notes}</p>
+                ) : null}
+                <EnquiryForm faceId={face.face_id} faceLabel={face.face_label} />
+              </article>
+            ))}
+          </section>
+        </div>
+
+        <aside className="hidden lg:sticky lg:top-16 lg:block">
+          <div className="rounded-md border bg-card p-4">
+            <p className="text-xs text-muted-foreground">{faces.length > 1 ? "From" : "Card rate"}</p>
+            <p className="tabular-inr text-xl font-semibold">{formatCardRate(fromRate)}</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {faces.length} face{faces.length === 1 ? "" : "s"} · {board.city}
+            </p>
+            <ul className="mt-4 space-y-2 text-sm">
+              {faces.map((face) => (
+                <li key={face.face_id}>
+                  <a href={`#face-${face.face_id}`} className="flex items-center justify-between gap-2 hover:text-primary">
+                    <span>{face.face_label}</span>
+                    <span className="tabular-inr text-muted-foreground">{formatCardRate(face.card_rate)}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <a
+              href="#faces"
+              className="mt-4 inline-flex h-9 w-full items-center justify-center rounded-md bg-primary text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              Enquire
+            </a>
+          </div>
+        </aside>
       </div>
+      <MarketEnquireBar price={formatCardRate(fromRate)} href="#faces" />
     </main>
   );
 }

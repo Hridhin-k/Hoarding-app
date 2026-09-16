@@ -6,6 +6,7 @@ export {
   rangesOverlap,
   statesConflict,
   vacancyMessage,
+  summarizeOccupancyDimensions,
   type OccupancyPeriodInput,
 } from "./status";
 export { OCCUPANCY_OVERLAP_MESSAGE, OCCUPANCY_BLOCKING_MESSAGE } from "./constants";

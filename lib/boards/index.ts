@@ -1,3 +1,4 @@
+export { formatFaceIdentity } from "./format";
 export {
   archiveFaceAction,
   createBoardAction,

@@ -3,7 +3,10 @@ import { notFound } from "next/navigation";
 import { requireTenant } from "@/lib/auth/session";
 import { can } from "@/lib/permissions/catalog";
 import { createClient } from "@/lib/supabase/server";
+import { MapViewLazy } from "@/components/maps/map-view-lazy";
 import { signedUrl } from "@/lib/storage/signed-url";
+import { streetViewOpenUrl } from "@/lib/maps/street-view";
+import { formatFaceIdentity } from "@/lib/boards/format";
 
 export default async function ProofDetailPage({
   params,
@@ -40,7 +43,11 @@ export default async function ProofDetailPage({
       <div>
         <h1 className="text-xl font-semibold">Proof detail</h1>
         <p className="text-sm text-neutral-600">
-          {board?.name} · {face?.face_label || "Board"} · {board?.board_code}
+          {formatFaceIdentity({
+            boardName: board?.name,
+            boardCode: board?.board_code,
+            faceLabel: face?.face_label,
+          })}
         </p>
       </div>
       {url ? (
@@ -84,6 +91,27 @@ export default async function ProofDetailPage({
       >
         Open capture location
       </a>
+      <a
+        className="block rounded-2xl bg-white px-4 py-3 text-center text-sm font-medium shadow-sm"
+        href={streetViewOpenUrl(Number(proof.latitude), Number(proof.longitude))}
+        target="_blank"
+        rel="noreferrer"
+      >
+        Street view
+      </a>
+      <MapViewLazy
+        markers={[
+          {
+            id: proof.id,
+            lat: Number(proof.latitude),
+            lng: Number(proof.longitude),
+            title: board?.name ?? "Proof location",
+          },
+        ]}
+        center={{ lat: Number(proof.latitude), lng: Number(proof.longitude) }}
+        zoom={17}
+        className="h-[240px] w-full overflow-hidden rounded-2xl border"
+      />
     </div>
   );
 }

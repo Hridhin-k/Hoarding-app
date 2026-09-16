@@ -1,6 +1,6 @@
 import { addDays, parseISO, startOfDay } from "date-fns";
 import { VACANCY_PRELISTING_DAYS_DEFAULT } from "@/lib/constants";
-import type { OccupancyDimension, OccupancyState } from "@/lib/types/enums";
+import { OCCUPANCY_DIMENSION_LABELS, type OccupancyDimension, type OccupancyState } from "@/lib/types/enums";
 import { isSameOrAfter, isSameOrBefore } from "@/lib/compliance/status";
 
 export type OccupancyPeriodInput = {
@@ -136,4 +136,22 @@ export function vacancyMessage(faceLabel: string, vacantOn: Date) {
     year: "numeric",
   });
   return `${faceLabel} becomes vacant on ${formatted}.`;
+}
+
+export function summarizeOccupancyDimensions(dimensions: OccupancyDimension[]): string {
+  if (!dimensions.length) return "No faces";
+  const order: OccupancyDimension[] = [
+    "occupied",
+    "becoming_vacant",
+    "booked_future",
+    "on_hold",
+    "vacant",
+    "blocked",
+  ];
+  const counts = new Map<OccupancyDimension, number>();
+  for (const item of dimensions) counts.set(item, (counts.get(item) ?? 0) + 1);
+  return order
+    .filter((key) => counts.get(key))
+    .map((key) => `${counts.get(key)} ${OCCUPANCY_DIMENSION_LABELS[key].toLowerCase()}`)
+    .join(" · ");
 }

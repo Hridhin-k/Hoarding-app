@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/page-header";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
 import { OccupancyBadge } from "@/components/status/status-badge";
@@ -16,6 +16,7 @@ import {
 } from "@/lib/dashboard/queries";
 import { cn } from "@/lib/utils";
 import { ENQUIRY_STATUS_LABELS, type EnquiryStatus, type OccupancyDimension } from "@/lib/types/enums";
+import { formatFaceIdentity } from "@/lib/boards/format";
 
 export default async function DashboardPage() {
   const ctx = await requireTenant();
@@ -31,7 +32,7 @@ export default async function DashboardPage() {
   const cards = dashboardMetricCards(stats);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <PageHeader
         title="Operations"
         description={`${ctx.tenantName} · inventory, vacancy, compliance, and demand.`}
@@ -44,26 +45,29 @@ export default async function DashboardPage() {
         }
       />
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-md border bg-border sm:grid-cols-3">
         {cards.map((card) => (
-          <Link key={card.label} href={card.href} className="rounded-xl border bg-card p-4 hover:bg-muted/40">
-            <div className="text-xs text-muted-foreground">{card.label}</div>
-            <div className="mt-2 text-2xl font-semibold tabular-nums">{card.value}</div>
+          <Link key={card.label} href={card.href} className="bg-card px-4 py-3.5 hover:bg-muted/40">
+            <div className="text-[11px] font-medium tracking-wide text-muted-foreground">{card.label}</div>
+            <div className="mt-1 text-2xl font-semibold tabular-inr">{card.value}</div>
           </Link>
         ))}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <CardHeader>
             <CardTitle>Upcoming Vacancies</CardTitle>
-            <Link href="/manage/occupancy" className="text-xs text-muted-foreground underline">
-              Occupancy
-            </Link>
+            <CardAction>
+              <Link href="/manage/occupancy" className="text-xs text-muted-foreground underline">
+                Occupancy
+              </Link>
+            </CardAction>
           </CardHeader>
           <CardContent>
             {!vacancies.length ? (
               <EmptyState
+                compact
                 title="No faces becoming vacant"
                 description="When occupancy enters the pre-listing window, sales alerts appear here."
               />
@@ -73,7 +77,7 @@ export default async function DashboardPage() {
                   <li key={row.id} className="flex items-start justify-between gap-3 text-sm">
                     <div>
                       <div className="font-medium">
-                        {row.boardName} · {row.faceLabel}
+                        {formatFaceIdentity({ boardName: row.boardName, faceLabel: row.faceLabel })}
                       </div>
                       <div className="text-muted-foreground">{row.message}</div>
                     </div>
@@ -86,16 +90,19 @@ export default async function DashboardPage() {
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <CardHeader>
             <CardTitle>Expiring Permits</CardTitle>
-            <Link href="/manage/compliance" className="text-xs text-muted-foreground underline">
-              Compliance
-            </Link>
+            <CardAction>
+              <Link href="/manage/compliance" className="text-xs text-muted-foreground underline">
+                Compliance
+              </Link>
+            </CardAction>
           </CardHeader>
           <CardContent>
             {!permits.length ? (
               <EmptyState
-                title="No permits need action"
+                compact
+                title="No compliance issues found."
                 description="Mandatory expiring or expired clearances appear here."
                 actionHref="/manage/compliance"
                 actionLabel="Open compliance"
@@ -121,15 +128,18 @@ export default async function DashboardPage() {
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <CardHeader>
             <CardTitle>Recent Enquiries</CardTitle>
-            <Link href="/manage/enquiries" className="text-xs text-muted-foreground underline">
-              All enquiries
-            </Link>
+            <CardAction>
+              <Link href="/manage/enquiries" className="text-xs text-muted-foreground underline">
+                All enquiries
+              </Link>
+            </CardAction>
           </CardHeader>
           <CardContent>
             {!enquiries.length ? (
               <EmptyState
+                compact
                 title="No enquiries yet"
                 description="Marketplace and direct enquiries will appear here."
                 actionHref="/market"
@@ -145,7 +155,8 @@ export default async function DashboardPage() {
                       <div>
                         <div className="font-medium">{row.name}</div>
                         <div className="text-muted-foreground">
-                          {row.company_name ?? "Independent"} · {board?.name} {face?.face_label} ·{" "}
+                          {row.company_name ?? "Independent"} ·{" "}
+                          {formatFaceIdentity({ boardName: board?.name, faceLabel: face?.face_label })} ·{" "}
                           {ENQUIRY_STATUS_LABELS[row.status as EnquiryStatus]}
                         </div>
                       </div>
@@ -161,16 +172,19 @@ export default async function DashboardPage() {
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <CardHeader>
             <CardTitle>Today&apos;s Field Jobs</CardTitle>
-            <Link href="/manage/field-jobs" className="text-xs text-muted-foreground underline">
-              Field jobs
-            </Link>
+            <CardAction>
+              <Link href="/manage/field-jobs" className="text-xs text-muted-foreground underline">
+                Field jobs
+              </Link>
+            </CardAction>
           </CardHeader>
           <CardContent>
             {!jobs.length ? (
               <EmptyState
-                title="No field jobs today"
+                compact
+                title="No field jobs assigned today."
                 description="Scheduled or pending technician jobs appear here."
                 actionHref="/manage/field-jobs"
                 actionLabel="Open field jobs"

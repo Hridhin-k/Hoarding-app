@@ -7,14 +7,14 @@ export default function ManageLoading() {
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-4 w-72" />
       </div>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} className="h-20 rounded-xl" />
+      <div className="grid grid-cols-3 gap-px overflow-hidden rounded-md border bg-border sm:grid-cols-3">
+        {Array.from({ length: 9 }).map((_, i) => (
+          <Skeleton key={i} className="h-[72px] rounded-none" />
         ))}
       </div>
       <div className="grid gap-6 lg:grid-cols-2">
-        <Skeleton className="h-64 rounded-xl" />
-        <Skeleton className="h-64 rounded-xl" />
+        <Skeleton className="h-64 rounded-md" />
+        <Skeleton className="h-64 rounded-md" />
       </div>
     </div>
   );

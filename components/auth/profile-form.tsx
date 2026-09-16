@@ -16,11 +16,11 @@ export function ProfileForm({ fullName, phone }: { fullName: string; phone: stri
     <form action={action} className="space-y-4 rounded-2xl bg-white p-4 shadow-sm">
       <div className="space-y-1.5">
         <Label htmlFor="fullName">Full name</Label>
-        <Input id="fullName" name="fullName" required defaultValue={fullName} className="h-12 rounded-xl" />
+        <Input id="fullName" name="fullName" required defaultValue={fullName} className="h-12 rounded-md" />
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="phone">Phone</Label>
-        <Input id="phone" name="phone" defaultValue={phone} className="h-12 rounded-xl" />
+        <Input id="phone" name="phone" defaultValue={phone} className="h-12 rounded-md" />
       </div>
       {state?.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
       {state?.ok ? <p className="text-sm text-muted-foreground">Profile saved.</p> : null}

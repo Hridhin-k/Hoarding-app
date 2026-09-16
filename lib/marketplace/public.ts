@@ -95,3 +95,15 @@ export function availabilityLabel(dimension: OccupancyDimension, availableFrom: 
   if (dimension === "on_hold") return `On hold · available ${formatAvailableFrom(availableFrom)}`;
   return formatAvailableFrom(availableFrom);
 }
+
+export function formatFaceSize(width: number, height: number, unit: string, areaSqft?: number | null) {
+  const size = `${width} × ${height} ${unit}`;
+  if (areaSqft == null || Number.isNaN(Number(areaSqft))) return size;
+  return `${size} · ${Number(areaSqft).toLocaleString("en-IN")} sq ft`;
+}
+
+export function startingRate(rates: Array<number | null | undefined>) {
+  const numbers = rates.filter((rate): rate is number => rate != null && Number.isFinite(rate));
+  if (!numbers.length) return null;
+  return Math.min(...numbers);
+}

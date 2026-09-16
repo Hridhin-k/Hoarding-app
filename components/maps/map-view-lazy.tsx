@@ -11,13 +11,19 @@ type MapViewProps = {
   onMarkerClick?: (id: string) => void;
   interactive?: boolean;
   className?: string;
+  orientation?: "beside" | "stack";
 };
 
 const MapView = dynamic(
   () => import("@/components/maps/map-view").then((m) => m.MapView),
   {
     ssr: false,
-    loading: () => <Skeleton className="h-full min-h-[240px] w-full rounded-xl" />,
+    loading: () => (
+      <div className="grid gap-3 lg:grid-cols-2">
+        <Skeleton className="h-full min-h-[220px] w-full rounded-md" />
+        <Skeleton className="h-full min-h-[220px] w-full rounded-md" />
+      </div>
+    ),
   },
 );
 

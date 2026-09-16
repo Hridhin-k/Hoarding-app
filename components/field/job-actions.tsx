@@ -32,12 +32,14 @@ export function JobActions({
   status,
   jobType,
   mapsUrl,
+  streetViewUrl,
   qrVerified,
 }: {
   jobId: string;
   status: FieldJobStatus;
   jobType: FieldJobType;
   mapsUrl: string | null;
+  streetViewUrl?: string | null;
   qrVerified: boolean;
 }) {
   const router = useRouter();
@@ -148,6 +150,16 @@ export function JobActions({
           className="block rounded-2xl bg-white px-4 py-3.5 text-center text-sm font-semibold shadow-sm"
         >
           Navigate
+        </a>
+      ) : null}
+      {streetViewUrl ? (
+        <a
+          href={streetViewUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="block rounded-2xl bg-white px-4 py-3.5 text-center text-sm font-medium shadow-sm"
+        >
+          Street view
         </a>
       ) : null}
 

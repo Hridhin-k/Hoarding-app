@@ -9,7 +9,7 @@ export function CreateCustomerForm() {
   const [error, setError] = useState<string | null>(null);
   return (
     <form
-      className="grid gap-2 rounded-xl border bg-card p-4 sm:grid-cols-3"
+      className="grid gap-2 rounded-md border bg-card p-4 sm:grid-cols-3"
       onSubmit={async (event) => {
         event.preventDefault();
         const result = await createCustomerAction(new FormData(event.currentTarget));
@@ -22,7 +22,7 @@ export function CreateCustomerForm() {
     >
       <Input name="name" placeholder="Contact name" required />
       <Input name="companyName" placeholder="Company" />
-      <select name="type" className="h-8 rounded-lg border px-2 text-sm" defaultValue="advertiser">
+      <select name="type" className="h360-select" defaultValue="advertiser">
         <option value="advertiser">Advertiser</option>
         <option value="agency">Agency</option>
         <option value="other">Other</option>

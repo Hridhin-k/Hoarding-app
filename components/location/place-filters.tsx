@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { KERALA_DISTRICT_NAMES, citiesInDistrict, isCatalogCity } from "@/lib/geo/kerala";
 
-const selectClass = "h-8 rounded-lg border bg-background px-2 text-sm";
+const selectClass = "h360-select";
 
 export function PlaceFilters({
   district = "",
@@ -74,7 +74,7 @@ export function PlaceFilters({
           aria-label="Locality"
           defaultValue={locality ?? ""}
           placeholder="Locality (optional)"
-          className="h-8 w-40 rounded-lg border px-2 text-sm"
+          className="h360-select w-40"
         />
       ) : null}
     </>

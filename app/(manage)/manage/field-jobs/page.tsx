@@ -43,7 +43,7 @@ export default async function FieldJobsPage() {
       {!jobs?.length ? (
         <EmptyState title="No field jobs" description="Create installation, inspection, or proof-of-display jobs." />
       ) : (
-        <ul className="divide-y rounded-xl border bg-card">
+        <ul className="divide-y rounded-md border bg-card">
           {jobs.map((job) => {
             const board = Array.isArray(job.boards) ? job.boards[0] : job.boards;
             return (

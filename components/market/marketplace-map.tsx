@@ -42,18 +42,19 @@ export function MarketplaceMap({
   const selected = boards.find((b) => b.boardId === selectedId) ?? null;
 
   return (
-    <div className={cn("space-y-3", className)}>
+    <div className={cn("flex h-full min-h-[320px] flex-col gap-3", className)}>
       <MapViewLazy
         markers={markers}
         onMarkerClick={setSelectedId}
-        className="h-[320px] w-full overflow-hidden rounded-xl border bg-white lg:h-[420px]"
+        orientation="stack"
+        className="h-[280px] w-full overflow-hidden rounded-md border bg-white lg:h-[42%]"
       />
       {selected ? (
-        <div className="rounded-xl border bg-white p-4 shadow-sm">
+        <div className="rounded-md border bg-card p-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <p className="text-xs text-muted-foreground">{STRUCTURE_TYPE_LABELS[selected.structureType]}</p>
-              <h2 className="text-base font-semibold">{selected.boardName}</h2>
+              <h2 className="text-base font-semibold tracking-tight">{selected.boardName}</h2>
               <p className="text-sm text-muted-foreground">
                 {[selected.locality, selected.city].filter(Boolean).join(", ")}
               </p>
@@ -67,15 +68,21 @@ export function MarketplaceMap({
             </div>
             <Link
               href={`/market/${selected.boardId}`}
-              className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-[#174ea6]"
+              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
-              View board
+              View site
             </Link>
           </div>
         </div>
       ) : boards.length ? (
-        <p className="text-sm text-muted-foreground">Click a map marker to preview a board.</p>
-      ) : null}
+        <p className="rounded-md border border-dashed bg-card px-3 py-2 text-sm text-muted-foreground">
+          Select a pin to preview a site, then open street view for the road-level look.
+        </p>
+      ) : (
+        <p className="rounded-md border border-dashed bg-card px-3 py-2 text-sm text-muted-foreground">
+          No mapped sites on this page. Adjust filters to see inventory on the map.
+        </p>
+      )}
     </div>
   );
 }
