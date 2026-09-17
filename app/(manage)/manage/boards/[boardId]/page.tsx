@@ -6,7 +6,6 @@ import { DisclosurePanel } from "@/components/disclosure-panel";
 import { MapViewLazy } from "@/components/maps/map-view-lazy";
 import { StatusCluster } from "@/components/status/status-badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { can } from "@/lib/permissions/catalog";
@@ -15,8 +14,8 @@ import { faceOccupancyDimension, summarizeOccupancyDimensions } from "@/lib/occu
 import { BoardQr } from "@/components/boards/board-qr";
 import { BoardEditForm } from "@/components/boards/board-edit-form";
 import { FaceForm } from "@/components/boards/face-form";
+import { FaceInventory } from "@/components/boards/face-inventory";
 import {
-  ILLUMINATION_LABELS,
   STRUCTURE_TYPE_LABELS,
   type BoardLifecycle,
   type IlluminationType,
@@ -24,7 +23,6 @@ import {
   type OwnershipType,
   type StructureType,
 } from "@/lib/types/enums";
-import { formatFaceIdentity } from "@/lib/boards/format";
 
 export default async function BoardDetailPage({
   params,
@@ -165,53 +163,31 @@ export default async function BoardDetailPage({
 
         <TabsContent value="faces" className="space-y-6 pt-6">
           {!activeFaces.length ? (
-            <EmptyState title="No active faces" description="Add independently sellable faces to this board." />
+            <EmptyState title="No active faces" description="Add independently sellable faces to this board. Occupancy, pricing, and marketplace listing all belong to the face, not the board." />
           ) : (
-            <div className="space-y-4">
-              {activeFaces.map((face) => (
-                <Card key={face.id}>
-                  <CardHeader>
-                    <CardTitle className="flex flex-wrap items-center gap-2 text-base">
-                      {formatFaceIdentity({ boardName: board.name, faceLabel: face.face_label })}
-                      <span className="text-sm font-normal text-muted-foreground">
-                        {face.width} × {face.height} ft · {Number(face.area_sqft).toLocaleString("en-IN")} sqft
-                      </span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3 text-sm">
-                    <div>
-                      {face.direction || "Direction unset"} ·{" "}
-                      {ILLUMINATION_LABELS[face.illumination as IlluminationType]}
-                    </div>
-                    <div>
-                      Card rate:{" "}
-                      {face.card_rate != null ? `₹${Number(face.card_rate).toLocaleString("en-IN")}/month` : "—"}
-                      {face.floor_rate != null
-                        ? ` · Floor ₹${Number(face.floor_rate).toLocaleString("en-IN")}/month`
-                        : ""}
-                    </div>
-                    <FaceForm
-                      boardId={board.id}
-                      face={{
-                        id: face.id,
-                        face_label: face.face_label,
-                        direction: face.direction,
-                        width: Number(face.width),
-                        height: Number(face.height),
-                        illumination: face.illumination as IlluminationType,
-                        card_rate: face.card_rate != null ? Number(face.card_rate) : null,
-                        floor_rate: face.floor_rate != null ? Number(face.floor_rate) : null,
-                        publishable: face.publishable,
-                        marketplace_visible: face.marketplace_visible,
-                        archived_at: face.archived_at,
-                      }}
-                      canEdit={can(ctx, "faces.update")}
-                      canArchive={can(ctx, "faces.delete")}
-                    />
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            <FaceInventory
+              boardId={board.id}
+              lifecycleStatus={board.lifecycle_status as BoardLifecycle}
+              compliance={compliance}
+              faces={activeFaces.map((face) => ({
+                id: face.id,
+                face_label: face.face_label,
+                direction: face.direction,
+                width: Number(face.width),
+                height: Number(face.height),
+                area_sqft: face.area_sqft != null ? Number(face.area_sqft) : null,
+                illumination: face.illumination as IlluminationType,
+                card_rate: face.card_rate != null ? Number(face.card_rate) : null,
+                floor_rate: face.floor_rate != null ? Number(face.floor_rate) : null,
+                publishable: face.publishable,
+                marketplace_visible: face.marketplace_visible,
+                archived_at: face.archived_at,
+                occupancy: faceOccupancyDimension(occupancyByFace.get(face.id) ?? []),
+              }))}
+              canEdit={can(ctx, "faces.update")}
+              canArchive={can(ctx, "faces.delete")}
+              canPublish={can(ctx, "marketplace.publish")}
+            />
           )}
 
           {can(ctx, "faces.create") ? (

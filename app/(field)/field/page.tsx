@@ -2,6 +2,7 @@ import { addDays, endOfDay, format, isWithinInterval, startOfDay } from "date-fn
 import Link from "next/link";
 import { EmptyState } from "@/components/empty-state";
 import { requireTenant } from "@/lib/auth/session";
+import { can } from "@/lib/permissions/catalog";
 import { createClient } from "@/lib/supabase/server";
 import {
   FIELD_JOB_PRIORITY_LABELS,
@@ -54,6 +55,7 @@ export default async function FieldHomePage({
   const active: Tab = tabs.includes(tab as Tab) ? (tab as Tab) : "today";
   const sections: Record<Tab, typeof all> = { today, upcoming, completed };
   const list = sections[active];
+  const canManageJobs = can(ctx, "field.manage");
 
   return (
     <div className="space-y-5">
@@ -88,13 +90,21 @@ export default async function FieldHomePage({
       {!list.length ? (
         <EmptyState
           title={
-            active === "today"
-              ? "No jobs today"
-              : active === "upcoming"
-                ? "No upcoming jobs"
-                : "No completed jobs yet"
+            canManageJobs && active === "today"
+              ? "No jobs assigned to you"
+              : active === "today"
+                ? "No jobs today"
+                : active === "upcoming"
+                  ? "No upcoming jobs"
+                  : "No completed jobs yet"
           }
-          description="Assigned field work for your organization appears here."
+          description={
+            canManageJobs
+              ? "Field is for technicians with assigned jobs. Create and assign work in Manage, then open it here as that technician."
+              : "Assigned field work for you appears here."
+          }
+          actionHref={canManageJobs ? "/manage/field-jobs" : undefined}
+          actionLabel={canManageJobs ? "Open field jobs" : undefined}
         />
       ) : (
         <ul className="space-y-3">

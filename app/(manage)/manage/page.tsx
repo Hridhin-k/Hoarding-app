@@ -34,46 +34,86 @@ export default async function DashboardPage() {
     ["Becoming vacant", "Expiring", "Expired", "Enquiries", "Field jobs"].includes(card.label),
   );
   const inventory = cards.filter((card) => ["Boards", "Faces", "Occupied", "Vacant"].includes(card.label));
+  const hasBoards = stats.boards > 0;
+  const becomingVacant = stats.becoming_vacant;
+  const canCreateBoard = can(ctx, "boards.create");
+
+  const headerActions = !hasBoards && canCreateBoard ? (
+    <Link href="/manage/boards/new" className={cn(buttonVariants())}>
+      Add board
+    </Link>
+  ) : becomingVacant > 0 ? (
+    <>
+      <Link href="/manage/occupancy" className={cn(buttonVariants())}>
+        Open availability
+      </Link>
+      {canCreateBoard ? (
+        <Link href="/manage/boards/new" className={cn(buttonVariants({ variant: "outline" }))}>
+          Add board
+        </Link>
+      ) : null}
+    </>
+  ) : canCreateBoard ? (
+    <Link href="/manage/boards/new" className={cn(buttonVariants())}>
+      Add board
+    </Link>
+  ) : null;
 
   return (
     <div className="h360-stack">
-      <PageHeader
-        title="Overview"
-        description={ctx.tenantName}
-        actions={
-          can(ctx, "boards.create") ? (
-            <Link href="/manage/boards/new" className={cn(buttonVariants())}>
-              Add board
-            </Link>
-          ) : null
-        }
-      />
+      <PageHeader title="Overview" description={ctx.tenantName} actions={headerActions} />
 
-      <section>
-        <SectionHeading title="Inventory" />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {inventory.map((card) => (
-            <Link key={card.label} href={card.href} className="h360-panel px-4 py-4 hover:bg-muted/40">
-              <div className="text-xs text-muted-foreground">{card.label}</div>
-              <div className="mt-1 text-2xl font-semibold tabular-inr tracking-tight">{card.value}</div>
+      {!hasBoards ? (
+        <EmptyState
+          title="Add your first board"
+          description="A board is the physical structure. Each board has one or more sellable faces — occupancy, pricing, and marketplace listing all happen on the face, not the board."
+          actionHref={canCreateBoard ? "/manage/boards/new" : undefined}
+          actionLabel={canCreateBoard ? "Add board" : undefined}
+        />
+      ) : (
+        <>
+          {becomingVacant > 0 ? (
+            <Link
+              href="/manage/occupancy"
+              className="h360-panel flex flex-wrap items-center justify-between gap-3 px-4 py-3 hover:bg-muted/40"
+            >
+              <div>
+                <div className="text-sm font-medium">
+                  {becomingVacant} face{becomingVacant === 1 ? "" : "s"} becoming vacant
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Pre-list on the marketplace from Availability before the current occupancy ends.
+                </p>
+              </div>
+              <span className="text-sm font-medium">Open availability</span>
             </Link>
-          ))}
-        </div>
-      </section>
+          ) : null}
 
-      <section>
-        <SectionHeading title="Needs attention" />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-          {attention.map((card) => (
-            <Link key={card.label} href={card.href} className="h360-panel px-4 py-4 hover:bg-muted/40">
-              <div className="text-xs text-muted-foreground">{card.label}</div>
-              <div className="mt-1 text-xl font-semibold tabular-inr tracking-tight">{card.value}</div>
-            </Link>
-          ))}
-        </div>
-      </section>
+          <section>
+            <SectionHeading title="Inventory" />
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {inventory.map((card) => (
+                <Link key={card.label} href={card.href} className="h360-panel px-4 py-4 hover:bg-muted/40">
+                  <div className="text-xs text-muted-foreground">{card.label}</div>
+                  <div className="mt-1 text-2xl font-semibold tabular-inr tracking-tight">{card.value}</div>
+                </Link>
+              ))}
+            </div>
+          </section>
 
-      <div className="grid gap-8 lg:grid-cols-2">
+          <section>
+            <SectionHeading title="Needs attention" />
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+              {attention.map((card) => (
+                <Link key={card.label} href={card.href} className="h360-panel px-4 py-4 hover:bg-muted/40">
+                  <div className="text-xs text-muted-foreground">{card.label}</div>
+                  <div className="mt-1 text-xl font-semibold tabular-inr tracking-tight">{card.value}</div>
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          <div className="grid gap-8 lg:grid-cols-2">
         <section>
           <SectionHeading title="Upcoming vacancies" href="/manage/occupancy" linkLabel="Availability" />
           <div className="h360-panel px-4 py-3">
@@ -118,7 +158,14 @@ export default async function DashboardPage() {
                     <li key={row.id} className="py-3 first:pt-0 last:pb-0">
                       <div className="font-medium">{board?.name}</div>
                       <div className="text-muted-foreground">
-                        {row.clearance_type} · {row.status} · {row.expiry_date}
+                        {row.clearance_type} · {row.status} ·{" "}
+                        {row.expiry_date
+                          ? new Date(`${row.expiry_date}T00:00:00`).toLocaleDateString("en-IN", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })
+                          : "—"}
                       </div>
                     </li>
                   );
@@ -192,7 +239,9 @@ export default async function DashboardPage() {
             )}
           </div>
         </section>
-      </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -99,6 +99,7 @@ export async function createOccupancyAction(input: unknown) {
     await refreshAlertsSafe(supabase, ctx.tenantId);
     revalidatePath("/manage/occupancy");
     revalidatePath("/manage");
+    revalidatePath("/manage/enquiries");
     return { id: data.id };
   } catch (error) {
     if (error instanceof AppError) return { error: error.message };

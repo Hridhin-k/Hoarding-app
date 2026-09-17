@@ -1,6 +1,9 @@
 export {
+  canAttemptMarketplacePublish,
   isMarketplaceEligible,
   marketplaceBlockReason,
+  marketplaceEligibilityGates,
+  type MarketplaceEligibilityGate,
   type MarketplaceEligibilityInput,
 } from "./eligibility";
 export {

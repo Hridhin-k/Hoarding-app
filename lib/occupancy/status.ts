@@ -129,6 +129,14 @@ export function availableFromDate(
   return addDays(last, 1);
 }
 
+export function occupancyStateForRequestedDates(
+  startDate: string,
+  asOf: Date = new Date(),
+): "occupied" | "booked_future" {
+  const start = toDate(startDate);
+  return start > startOfDay(asOf) ? "booked_future" : "occupied";
+}
+
 export function vacancyMessage(faceLabel: string, vacantOn: Date) {
   const formatted = vacantOn.toLocaleDateString("en-IN", {
     day: "numeric",

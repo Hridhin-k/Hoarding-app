@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { isMarketplaceEligible, marketplaceBlockReason } from "@/lib/marketplace/eligibility";
+import {
+  canAttemptMarketplacePublish,
+  isMarketplaceEligible,
+  marketplaceBlockReason,
+  marketplaceEligibilityGates,
+} from "@/lib/marketplace/eligibility";
 import { availabilityLabel, formatCardRate, MARKETPLACE_LISTING_COLUMNS } from "@/lib/marketplace/public";
 
 const eligible = {
@@ -53,6 +58,34 @@ describe("marketplace eligibility", () => {
   it("rejects faces when the tenant is suspended", () => {
     expect(isMarketplaceEligible({ ...eligible, organizationStatus: "suspended" })).toBe(false);
     expect(marketplaceBlockReason({ ...eligible, organizationStatus: "suspended" })).toMatch(/not active/i);
+  });
+
+  it("lists publish gates so operators can see what to fix", () => {
+    const gates = marketplaceEligibilityGates({
+      ...eligible,
+      marketplaceVisible: false,
+      publishable: false,
+      lifecycleStatus: "draft",
+      compliance: "missing",
+    });
+    expect(gates.map((gate) => gate.id)).toEqual([
+      "lifecycle",
+      "publishable",
+      "visible",
+      "compliance",
+      "occupancy",
+    ]);
+    expect(gates.filter((gate) => !gate.ok).map((gate) => gate.id)).toEqual([
+      "lifecycle",
+      "publishable",
+      "visible",
+      "compliance",
+    ]);
+    expect(canAttemptMarketplacePublish({ ...eligible, marketplaceVisible: false, publishable: false })).toBe(
+      true,
+    );
+    expect(canAttemptMarketplacePublish({ ...eligible, lifecycleStatus: "draft" })).toBe(false);
+    expect(canAttemptMarketplacePublish({ ...eligible, occupancy: "blocked" })).toBe(false);
   });
 });
 

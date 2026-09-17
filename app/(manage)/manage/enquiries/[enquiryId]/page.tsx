@@ -1,11 +1,19 @@
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/page-header";
+import { PropertyList } from "@/components/property-list";
 import { EnquiryActions } from "@/components/enquiries/enquiry-actions";
+import { BookEnquiryDates } from "@/components/enquiries/book-enquiry-dates";
 import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { can } from "@/lib/permissions/catalog";
 import { ENQUIRY_STATUS_LABELS, type EnquiryStatus } from "@/lib/types/enums";
 import { formatFaceIdentity } from "@/lib/boards/format";
+import { formatAvailableFrom } from "@/lib/marketplace/public";
+
+function displayDate(value: string | null) {
+  if (!value) return "—";
+  return formatAvailableFrom(value);
+}
 
 export default async function EnquiryDetailPage({
   params,
@@ -26,6 +34,11 @@ export default async function EnquiryDetailPage({
   const face = Array.isArray(data.board_faces) ? data.board_faces[0] : data.board_faces;
   const board = face && !Array.isArray(face.boards) ? face.boards : face?.boards?.[0];
   const customer = Array.isArray(data.customers) ? data.customers[0] : data.customers;
+  const faceLabel = formatFaceIdentity({
+    boardName: board?.name,
+    boardCode: board?.board_code,
+    faceLabel: face?.face_label,
+  });
 
   const { data: members } = await supabase
     .from("organization_members")
@@ -47,18 +60,26 @@ export default async function EnquiryDetailPage({
     <div className="space-y-6">
       <PageHeader
         title={data.name}
-        description={`${formatFaceIdentity({ boardName: board?.name, boardCode: board?.board_code, faceLabel: face?.face_label })} · ${ENQUIRY_STATUS_LABELS[data.status as EnquiryStatus]}`}
+        description={`${faceLabel} · ${ENQUIRY_STATUS_LABELS[data.status as EnquiryStatus]}`}
       />
-      <div className="grid gap-2 rounded-md border bg-card p-4 text-sm sm:grid-cols-2">
-        <div>Company: {data.company_name || "—"}</div>
-        <div>Email: {data.email}</div>
-        <div>Phone: {data.phone}</div>
-        <div>Source: {data.source}</div>
-        <div>
-          Requested: {data.requested_start_date || "—"} → {data.requested_end_date || "—"}
-        </div>
-        <div>Customer: {customer?.name || "Not linked"}</div>
-        <p className="sm:col-span-2 text-muted-foreground">{data.message || "No message."}</p>
+      <div className="h360-panel p-4">
+        <PropertyList
+          items={[
+            { label: "Company", value: data.company_name },
+            { label: "Email", value: data.email },
+            { label: "Phone", value: data.phone },
+            { label: "Source", value: data.source },
+            {
+              label: "Requested dates",
+              value:
+                data.requested_start_date || data.requested_end_date
+                  ? `${displayDate(data.requested_start_date)} → ${displayDate(data.requested_end_date)}`
+                  : null,
+            },
+            { label: "Customer", value: customer?.name || "Not linked" },
+            { label: "Message", value: data.message },
+          ]}
+        />
       </div>
       {can(ctx, "enquiries.manage") ? (
         <EnquiryActions
@@ -67,6 +88,17 @@ export default async function EnquiryDetailPage({
           assignedTo={data.assigned_to}
           members={assigneeOptions}
           customerId={data.customer_id}
+        />
+      ) : null}
+      {data.face_id && can(ctx, "occupancy.manage") ? (
+        <BookEnquiryDates
+          enquiryId={data.id}
+          faceId={data.face_id}
+          faceLabel={faceLabel}
+          startDate={data.requested_start_date}
+          endDate={data.requested_end_date}
+          customerId={data.customer_id}
+          notes={data.message}
         />
       ) : null}
     </div>

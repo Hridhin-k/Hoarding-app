@@ -40,9 +40,9 @@ export default async function CustomersPage({
 
   return (
     <div className="h360-stack">
-      <PageHeader title="Clients" />
+      <PageHeader title="Customers" />
       {can(ctx, "customers.manage") ? (
-        <DisclosurePanel title="Add client">
+        <DisclosurePanel title="Add customer">
           <CreateCustomerForm />
         </DisclosurePanel>
       ) : null}

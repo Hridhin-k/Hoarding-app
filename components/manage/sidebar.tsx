@@ -49,7 +49,7 @@ const GROUPS: Array<{ label: string; items: NavItem[] }> = [
     label: "Demand",
     items: [
       { href: "/manage/enquiries", label: "Enquiries", icon: Megaphone, permission: "enquiries.view" },
-      { href: "/manage/customers", label: "Clients", icon: BriefcaseBusiness, permission: "customers.view" },
+      { href: "/manage/customers", label: "Customers", icon: BriefcaseBusiness, permission: "customers.view" },
       { href: "/manage/campaigns", label: "Campaigns", icon: ClipboardList, permission: "campaigns.view" },
     ],
   },

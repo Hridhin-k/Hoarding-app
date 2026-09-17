@@ -5,6 +5,7 @@ import {
   faceOccupancyDimension,
   occupancyConflictMessage,
   occupancyConflicts,
+  occupancyStateForRequestedDates,
   rangesOverlap,
   statesConflict,
   summarizeOccupancyDimensions,
@@ -194,6 +195,14 @@ describe("permissions", () => {
     expect(roleHasPermission("TECHNICIAN", "marketplace.publish")).toBe(false);
     expect(roleHasPermission("SALES", "marketplace.publish")).toBe(true);
     expect(roleHasPermission("COMPLIANCE", "enquiries.manage")).toBe(false);
+  });
+});
+
+describe("occupancyStateForRequestedDates", () => {
+  it("books current or past starts as occupied and future starts as booked_future", () => {
+    expect(occupancyStateForRequestedDates("2026-09-15", asOf)).toBe("occupied");
+    expect(occupancyStateForRequestedDates("2026-09-14", asOf)).toBe("occupied");
+    expect(occupancyStateForRequestedDates("2026-09-16", asOf)).toBe("booked_future");
   });
 });
 

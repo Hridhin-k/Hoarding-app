@@ -14,19 +14,30 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type Mode = "occupied" | "hold" | "block" | "booked_future";
 
+export type OccupancyFormDefaults = {
+  faceId?: string;
+  startDate?: string;
+  endDate?: string;
+  customerId?: string;
+  notes?: string;
+  mode?: Mode;
+};
+
 function field(value: FormDataEntryValue | null) {
   return typeof value === "string" ? value : "";
 }
 
 export function OccupancyForm({
   faces,
+  defaults,
 }: {
   faces: Array<{ id: string; label: string }>;
+  defaults?: OccupancyFormDefaults;
 }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
-  const [mode, setMode] = useState<Mode>("occupied");
+  const [mode, setMode] = useState<Mode>(defaults?.mode ?? "occupied");
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -37,7 +48,8 @@ export function OccupancyForm({
       startDate: field(form.get("startDate")),
       endDate: field(form.get("endDate")),
       state: mode === "hold" ? "on_hold" : mode === "block" ? "blocked" : mode,
-      source: "manual" as const,
+      source: defaults?.customerId ? ("enquiry" as const) : ("manual" as const),
+      customerId: defaults?.customerId || null,
       notes: field(form.get("notes")),
     };
     setPending(true);
@@ -65,7 +77,7 @@ export function OccupancyForm({
   return (
     <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)} className="gap-3">
       <TabsList className="h-auto w-full flex-wrap justify-start">
-        <TabsTrigger value="occupied">Occupancy</TabsTrigger>
+        <TabsTrigger value="occupied">Occupied dates</TabsTrigger>
         <TabsTrigger value="booked_future">Future booking</TabsTrigger>
         <TabsTrigger value="hold">Hold</TabsTrigger>
         <TabsTrigger value="block">Block dates</TabsTrigger>
@@ -85,7 +97,7 @@ export function OccupancyForm({
           </div>
           <div className="space-y-1.5">
             <Label>Board / face</Label>
-            <select name="faceId" required className="h360-select w-full">
+            <select name="faceId" required className="h360-select w-full" defaultValue={defaults?.faceId ?? faces[0]?.id}>
               {faces.map((face) => (
                 <option key={face.id} value={face.id}>
                   {face.label}
@@ -95,15 +107,15 @@ export function OccupancyForm({
           </div>
           <div className="space-y-1.5">
             <Label>Start</Label>
-            <Input name="startDate" type="date" required />
+            <Input name="startDate" type="date" required defaultValue={defaults?.startDate} />
           </div>
           <div className="space-y-1.5">
             <Label>End</Label>
-            <Input name="endDate" type="date" required />
+            <Input name="endDate" type="date" required defaultValue={defaults?.endDate} />
           </div>
           <div className="space-y-1.5 sm:col-span-2">
             <Label>Notes</Label>
-            <Input name="notes" placeholder="e.g. for Afreen / Oxions" />
+            <Input name="notes" placeholder="e.g. for Afreen / Oxions" defaultValue={defaults?.notes} />
           </div>
           <div className="flex items-end">
             <Button type="submit" disabled={pending}>

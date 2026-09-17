@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { requirePermission } from "@/lib/auth/session";
 import { can } from "@/lib/permissions/catalog";
 import { createClient } from "@/lib/supabase/server";
-import { availableFromDate, faceOccupancyDimension } from "@/lib/occupancy/status";
+import { availableFromDate, faceOccupancyDimension, occupancyStateForRequestedDates } from "@/lib/occupancy/status";
 import { cn } from "@/lib/utils";
 import type { OccupancyState } from "@/lib/types/enums";
 import { formatFaceIdentity } from "@/lib/boards/format";
@@ -26,10 +26,10 @@ const stateColor: Record<OccupancyState, string> = {
 export default async function OccupancyPage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string }>;
+  searchParams: Promise<{ view?: string; face?: string; start?: string; end?: string; customer?: string; notes?: string }>;
 }) {
   const ctx = await requirePermission("occupancy.view");
-  const { view = "calendar" } = await searchParams;
+  const { view = "calendar", face, start, end, customer, notes } = await searchParams;
   const supabase = await createClient();
 
   const { data: settings } = await supabase
@@ -80,8 +80,18 @@ export default async function OccupancyPage({
       </div>
 
       {can(ctx, "occupancy.manage") && faceOptions.length ? (
-        <DisclosurePanel title="Add occupancy">
-          <OccupancyForm faces={faceOptions} />
+        <DisclosurePanel title="Add occupancy" defaultOpen={Boolean(face || start)}>
+          <OccupancyForm
+            faces={faceOptions}
+            defaults={{
+              faceId: face,
+              startDate: start,
+              endDate: end,
+              customerId: customer,
+              notes,
+              mode: start ? occupancyStateForRequestedDates(start) : undefined,
+            }}
+          />
         </DisclosurePanel>
       ) : null}
 
@@ -120,7 +130,7 @@ export default async function OccupancyPage({
                     <OccupancyStateBadge value={row.state as OccupancyState} />
                   </TableCell>
                   <TableCell>
-                    {row.start_date} → {row.end_date}
+                    {format(parseISO(row.start_date), "d MMM yyyy")} → {format(parseISO(row.end_date), "d MMM yyyy")}
                   </TableCell>
                   <TableCell className="max-w-xs truncate">{row.notes || "—"}</TableCell>
                   <TableCell>
@@ -175,26 +185,48 @@ export default async function OccupancyPage({
                     ) : null}
                   </div>
                 </div>
-                <div
-                  className="grid h-10 overflow-hidden rounded-md bg-muted"
-                  style={{ gridTemplateColumns: `repeat(${days}, minmax(0, 1fr))` }}
-                >
-                  {Array.from({ length: days }).map((_, index) => {
-                    const day = addDays(monthStart, index);
-                    const hit = periods.find((p) => {
-                      const start = parseISO(p.start_date);
-                      const end = parseISO(p.end_date);
-                      return day >= start && day <= end;
-                    });
-                    const color = hit ? stateColor[hit.state as OccupancyState] : "bg-transparent";
-                    return (
-                      <div
-                        key={index}
-                        className={cn(color, "min-w-0")}
-                        title={hit ? `${hit.state as OccupancyState}` : "vacant"}
-                      />
-                    );
-                  })}
+                <div className="overflow-x-auto">
+                  <div className="min-w-[40rem]">
+                    <div
+                      className="grid h-12 overflow-hidden rounded-md bg-muted"
+                      style={{ gridTemplateColumns: `repeat(${days}, minmax(0.75rem, 1fr))` }}
+                    >
+                      {Array.from({ length: days }).map((_, index) => {
+                        const day = addDays(monthStart, index);
+                        const hit = periods.find((p) => {
+                          const startDate = parseISO(p.start_date);
+                          const endDate = parseISO(p.end_date);
+                          return day >= startDate && day <= endDate;
+                        });
+                        const color = hit ? stateColor[hit.state as OccupancyState] : "bg-transparent";
+                        return (
+                          <div
+                            key={index}
+                            className={cn(color, "min-w-0")}
+                            title={
+                              hit
+                                ? `${hit.state as OccupancyState} · ${format(day, "d MMM")}`
+                                : `vacant · ${format(day, "d MMM")}`
+                            }
+                          />
+                        );
+                      })}
+                    </div>
+                    <div
+                      className="mt-1 grid text-[10px] text-muted-foreground"
+                      style={{ gridTemplateColumns: `repeat(${days}, minmax(0.75rem, 1fr))` }}
+                    >
+                      {Array.from({ length: days }).map((_, index) => {
+                        const day = addDays(monthStart, index);
+                        const show = index === 0 || day.getDate() === 1 || day.getDate() % 5 === 0;
+                        return (
+                          <span key={index} className={cn("truncate", !show && "invisible")}>
+                            {format(day, "d")}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
                 <div className="mt-2 flex justify-between text-[11px] text-muted-foreground">
                   <span>{format(monthStart, "MMMM yyyy")}</span>
