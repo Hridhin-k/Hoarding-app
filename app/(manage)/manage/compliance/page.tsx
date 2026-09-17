@@ -4,6 +4,7 @@ import { EmptyState } from "@/components/empty-state";
 import { CreateComplianceForm } from "@/components/compliance/create-compliance-form";
 import { ComplianceSummaryCards } from "@/components/compliance/compliance-summary-cards";
 import { DocumentDownloadLink } from "@/components/compliance/document-download-link";
+import { RenewComplianceDialog } from "@/components/compliance/renew-compliance-dialog";
 import { ComplianceBadge } from "@/components/status/status-badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { can } from "@/lib/permissions/catalog";
@@ -20,6 +21,7 @@ export default async function CompliancePage({
   const ctx = await requirePermission("compliance.view");
   const { status } = await searchParams;
   const supabase = await createClient();
+  const canManage = can(ctx, "compliance.manage");
 
   const { data: allMandatory } = await supabase
     .from("compliance_records")
@@ -67,16 +69,14 @@ export default async function CompliancePage({
         {(["valid", "expiring", "expired", "missing"] as const).map((value) => (
           <a
             key={value}
-            href={`?status=${value}`}
+            href={`/manage/compliance?status=${value}`}
             className={`h360-chip${status === value ? " h360-chip-active" : ""}`}
           >
             {value === "expiring" ? "Expiring soon" : value.charAt(0).toUpperCase() + value.slice(1)}
           </a>
         ))}
       </div>
-      {can(ctx, "compliance.manage") && boards?.length ? (
-        <CreateComplianceForm boards={boards} />
-      ) : null}
+      {canManage && boards?.length ? <CreateComplianceForm boards={boards} /> : null}
       {!data?.length ? (
         <EmptyState title="No compliance records" description="Add permits and clearances to track expiry." />
       ) : (
@@ -90,6 +90,7 @@ export default async function CompliancePage({
               <TableHead>Alert</TableHead>
               <TableHead>Document</TableHead>
               <TableHead>Status</TableHead>
+              {canManage ? <TableHead className="w-[1%] text-right">Action</TableHead> : null}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -100,11 +101,10 @@ export default async function CompliancePage({
               const alert = complianceAlertWindow(row.expiry_date);
               const clearanceLabel =
                 CLEARANCE_TYPE_LABELS[row.clearance_type as ClearanceType] ?? row.clearance_type;
+              const boardLabel = [board?.board_code, board?.name].filter(Boolean).join(" · ") || "Board";
               return (
                 <TableRow key={row.id}>
-                  <TableCell>
-                    {board?.board_code} · {board?.name}
-                  </TableCell>
+                  <TableCell>{boardLabel}</TableCell>
                   <TableCell>
                     {clearanceLabel}
                     {row.is_mandatory ? (
@@ -132,6 +132,25 @@ export default async function CompliancePage({
                   <TableCell>
                     <ComplianceBadge value={row.status as ComplianceStatus} />
                   </TableCell>
+                  {canManage ? (
+                    <TableCell className="text-right">
+                      <RenewComplianceDialog
+                        record={{
+                          id: row.id,
+                          boardLabel,
+                          clearanceType: row.clearance_type as ClearanceType,
+                          authority: row.authority,
+                          referenceNumber: row.reference_number,
+                          issueDate: row.issue_date,
+                          expiryDate: row.expiry_date,
+                          renewalCycle: row.renewal_cycle,
+                          isMandatory: row.is_mandatory,
+                          notes: row.notes,
+                          status: row.status,
+                        }}
+                      />
+                    </TableCell>
+                  ) : null}
                 </TableRow>
               );
             })}

@@ -10,11 +10,18 @@ import type { PlatformStaffContext, TenantContext } from "@/lib/auth/types";
 export type { PlatformStaffContext, TenantContext } from "@/lib/auth/types";
 
 export async function getUser() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return user;
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+    if (error) return null;
+    return user;
+  } catch {
+    // Stale/invalid refresh tokens must not crash Server Components (React #441 in prod).
+    return null;
+  }
 }
 
 export async function requireUser() {
@@ -25,9 +32,14 @@ export async function requireUser() {
 
 export async function getPlatformStaff(): Promise<PlatformStaffContext | null> {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user;
+  try {
+    const result = await supabase.auth.getUser();
+    if (result.error) return null;
+    user = result.data.user;
+  } catch {
+    return null;
+  }
   if (!user) return null;
 
   const { data: staff } = await supabase
@@ -61,9 +73,14 @@ export async function requirePlatformStaff(): Promise<PlatformStaffContext> {
 
 export async function getTenantContext(): Promise<TenantContext | null> {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user;
+  try {
+    const result = await supabase.auth.getUser();
+    if (result.error) return null;
+    user = result.data.user;
+  } catch {
+    return null;
+  }
   if (!user) return null;
 
   const cookieStore = await cookies();

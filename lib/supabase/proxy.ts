@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { TENANT_COOKIE } from "@/lib/constants";
 import { getPublicEnv, hasPublicEnv } from "@/lib/env";
-import { applyAuthCookieSetAll, copyResponseCookies } from "@/lib/supabase/auth-cookies";
+import { applyAuthCookieSetAll, copyResponseCookies, expireAuthCookieOnResponse, isSupabaseAuthCookie } from "@/lib/supabase/auth-cookies";
 
 export async function updateSession(request: NextRequest) {
   if (!hasPublicEnv()) {
@@ -23,9 +23,24 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user: Awaited<ReturnType<typeof supabase.auth.getUser>>["data"]["user"] = null;
+  try {
+    const result = await supabase.auth.getUser();
+    user = result.data.user;
+    if (result.error) {
+      for (const cookie of request.cookies.getAll()) {
+        if (isSupabaseAuthCookie(cookie.name)) {
+          expireAuthCookieOnResponse(supabaseResponse, cookie.name);
+        }
+      }
+    }
+  } catch {
+    for (const cookie of request.cookies.getAll()) {
+      if (isSupabaseAuthCookie(cookie.name)) {
+        expireAuthCookieOnResponse(supabaseResponse, cookie.name);
+      }
+    }
+  }
 
   const path = request.nextUrl.pathname;
   const isAuthRoute =
@@ -43,7 +58,8 @@ export async function updateSession(request: NextRequest) {
   if (!user && isProtected) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/login";
-    redirectUrl.searchParams.set("next", path);
+    redirectUrl.search = "";
+    redirectUrl.searchParams.set("next", `${path}${request.nextUrl.search}`);
     return copyResponseCookies(supabaseResponse, NextResponse.redirect(redirectUrl));
   }
 

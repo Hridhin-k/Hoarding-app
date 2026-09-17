@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   blockDatesAction,
@@ -13,36 +14,52 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type Mode = "occupied" | "hold" | "block" | "booked_future";
 
+function field(value: FormDataEntryValue | null) {
+  return typeof value === "string" ? value : "";
+}
+
 export function OccupancyForm({
   faces,
 }: {
   faces: Array<{ id: string; label: string }>;
 }) {
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [mode, setMode] = useState<Mode>("occupied");
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
+    const formEl = event.currentTarget;
+    const form = new FormData(formEl);
     const payload = {
-      faceId: form.get("faceId"),
-      startDate: form.get("startDate"),
-      endDate: form.get("endDate"),
+      faceId: field(form.get("faceId")),
+      startDate: field(form.get("startDate")),
+      endDate: field(form.get("endDate")),
       state: mode === "hold" ? "on_hold" : mode === "block" ? "blocked" : mode,
-      notes: form.get("notes"),
+      source: "manual" as const,
+      notes: field(form.get("notes")),
     };
     setPending(true);
     setError(null);
-    const result =
-      mode === "hold"
-        ? await createHoldAction(payload)
-        : mode === "block"
-          ? await blockDatesAction(payload)
-          : await createOccupancyAction(payload);
-    setPending(false);
-    if (result.error) setError(result.error);
-    else event.currentTarget.reset();
+    try {
+      const result =
+        mode === "hold"
+          ? await createHoldAction(payload)
+          : mode === "block"
+            ? await blockDatesAction(payload)
+            : await createOccupancyAction(payload);
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
+      formEl.reset();
+      router.refresh();
+    } catch {
+      setError("Could not save this booking. Sign out and sign in again, then retry.");
+    } finally {
+      setPending(false);
+    }
   }
 
   return (
@@ -86,7 +103,7 @@ export function OccupancyForm({
           </div>
           <div className="space-y-1.5 sm:col-span-2">
             <Label>Notes</Label>
-            <Input name="notes" />
+            <Input name="notes" placeholder="e.g. for Afreen / Oxions" />
           </div>
           <div className="flex items-end">
             <Button type="submit" disabled={pending}>

@@ -4,12 +4,14 @@ export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
   use: {
-    baseURL: "http://127.0.0.1:3000",
+    // Use localhost, not 127.0.0.1 — Next.js 16 blocks cross-origin `/_next` assets
+    // from 127.0.0.1, which prevents the login server action from hydrating.
+    baseURL: "http://localhost:3000",
     ...devices["Desktop Chrome"],
   },
   webServer: {
     command: "npm run dev",
-    url: "http://127.0.0.1:3000",
+    url: "http://localhost:3000",
     reuseExistingServer: true,
     timeout: 120000,
   },

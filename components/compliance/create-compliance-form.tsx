@@ -7,13 +7,6 @@ import { CLEARANCE_TYPE_LABELS } from "@/lib/types/enums";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -23,6 +16,7 @@ type Props = {
 
 export function CreateComplianceForm({ boards }: Props) {
   const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
   const [boardId, setBoardId] = useState(boards[0]?.id ?? "");
   const [clearanceType, setClearanceType] = useState<string>(CLEARANCE_TYPES[0]);
   const [isMandatory, setIsMandatory] = useState(true);
@@ -37,43 +31,50 @@ export function CreateComplianceForm({ boards }: Props) {
           setError("Choose a board.");
           return;
         }
+        setPending(true);
         const formData = new FormData(event.currentTarget);
         formData.set("clearanceType", clearanceType);
         formData.set("isMandatory", isMandatory ? "true" : "false");
         const result = await createComplianceAction(boardId, formData);
+        setPending(false);
         if (result.error) setError(result.error);
-        else event.currentTarget.reset();
+        else {
+          event.currentTarget.reset();
+          setBoardId(boards[0]?.id ?? "");
+          setClearanceType(CLEARANCE_TYPES[0]);
+          setIsMandatory(true);
+        }
       }}
     >
       <div className="space-y-2 md:col-span-2">
         <Label htmlFor="boardId">Board</Label>
-        <Select value={boardId} onValueChange={(v) => v && setBoardId(v)}>
-          <SelectTrigger id="boardId">
-            <SelectValue placeholder="Select board" />
-          </SelectTrigger>
-          <SelectContent>
-            {boards.map((b) => (
-              <SelectItem key={b.id} value={b.id}>
-                {b.board_code} · {b.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <select
+          id="boardId"
+          className="h360-select w-full"
+          value={boardId}
+          onChange={(event) => setBoardId(event.target.value)}
+        >
+          {boards.map((b) => (
+            <option key={b.id} value={b.id}>
+              {b.board_code} · {b.name}
+            </option>
+          ))}
+        </select>
       </div>
       <div className="space-y-2">
         <Label htmlFor="clearanceType">Clearance type</Label>
-        <Select value={clearanceType} onValueChange={(v) => v && setClearanceType(v)}>
-          <SelectTrigger id="clearanceType">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {CLEARANCE_TYPES.map((type) => (
-              <SelectItem key={type} value={type}>
-                {CLEARANCE_TYPE_LABELS[type]}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <select
+          id="clearanceType"
+          className="h360-select w-full"
+          value={clearanceType}
+          onChange={(event) => setClearanceType(event.target.value)}
+        >
+          {CLEARANCE_TYPES.map((type) => (
+            <option key={type} value={type}>
+              {CLEARANCE_TYPE_LABELS[type]}
+            </option>
+          ))}
+        </select>
       </div>
       <div className="space-y-2">
         <Label htmlFor="authority">Authority</Label>
@@ -109,7 +110,9 @@ export function CreateComplianceForm({ boards }: Props) {
         <Textarea id="notes" name="notes" rows={2} />
       </div>
       <div className="md:col-span-2 flex flex-wrap items-center gap-3">
-        <Button type="submit">Add clearance</Button>
+        <Button type="submit" disabled={pending}>
+          {pending ? "Saving…" : "Add clearance"}
+        </Button>
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
       </div>
     </form>
