@@ -70,7 +70,7 @@ export function OccupancyForm({
         <TabsTrigger value="hold">Hold</TabsTrigger>
         <TabsTrigger value="block">Block dates</TabsTrigger>
       </TabsList>
-      <form className="grid gap-4 rounded-md border bg-card p-4 sm:grid-cols-3" onSubmit={submit}>
+      <form className="grid gap-4 sm:grid-cols-3" onSubmit={submit}>
         <TabsContent value={mode} className="contents">
           <div className="space-y-1.5 sm:col-span-3">
             <p className="text-sm text-muted-foreground">

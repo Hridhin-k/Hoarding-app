@@ -9,10 +9,7 @@ export default async function PlatformAuditPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Platform audit"
-        description="Inspect sessions, suspensions, and other staff actions. Separate from tenant audit logs."
-      />
+      <PageHeader title="Platform audit" />
       {!rows.length ? (
         <EmptyState title="No platform events" description="Inspect and tenant status changes appear here." />
       ) : (

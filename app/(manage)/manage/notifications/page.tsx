@@ -14,7 +14,7 @@ export default async function NotificationsPage() {
     .limit(50);
   return (
     <div className="space-y-6">
-      <PageHeader title="Notifications" description="Vacancy, compliance, and enquiry alerts." />
+      <PageHeader title="Notifications" />
       {!data?.length ? (
         <EmptyState title="No notifications" description="Sales vacancy alerts and permit reminders will show here." />
       ) : (

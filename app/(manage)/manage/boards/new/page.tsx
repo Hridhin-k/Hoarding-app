@@ -8,7 +8,7 @@ export default async function NewBoardPage() {
     <div className="space-y-6">
       <PageHeader
         title="Add board"
-        description="Create the physical structure first, then independently sellable faces."
+        description="Create the structure first, then add faces."
       />
       <BoardWizard />
     </div>

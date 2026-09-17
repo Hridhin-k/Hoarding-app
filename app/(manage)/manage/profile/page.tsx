@@ -14,10 +14,7 @@ export default async function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Profile"
-        description="Your name is visible to teammates in this organization. It is not a security control."
-      />
+      <PageHeader title="Profile" />
       <p className="text-sm text-muted-foreground">{ctx.email}</p>
       <ProfileForm fullName={profile?.full_name || ctx.fullName} phone={profile?.phone ?? ""} />
     </div>

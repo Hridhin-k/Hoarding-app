@@ -13,7 +13,7 @@ export default async function SettingsPage() {
     .maybeSingle();
   return (
     <div className="space-y-6">
-      <PageHeader title="Settings" description="Vacancy pre-listing window and organization defaults." />
+      <PageHeader title="Settings" />
       <SettingsForm days={data?.vacancy_prelisting_days ?? 30} />
     </div>
   );

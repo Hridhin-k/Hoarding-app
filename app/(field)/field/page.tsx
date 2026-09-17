@@ -56,8 +56,11 @@ export default async function FieldHomePage({
   const list = sections[active];
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-semibold">Jobs</h1>
+    <div className="space-y-5">
+      <div>
+        <h1 className="text-xl font-semibold tracking-tight">Jobs</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Today’s assigned site work.</p>
+      </div>
       <div className="grid grid-cols-3 gap-2">
         {(
           [
@@ -72,7 +75,7 @@ export default async function FieldHomePage({
             className={cn(
               "rounded-md px-2 py-3 text-center text-xs",
               active === key
-                ? "bg-accent font-medium text-accent-foreground"
+                ? "bg-muted font-medium text-foreground"
                 : "bg-card text-muted-foreground ring-1 ring-border",
             )}
           >
@@ -100,17 +103,17 @@ export default async function FieldHomePage({
             const face = Array.isArray(job.board_faces) ? job.board_faces[0] : job.board_faces;
             return (
               <li key={job.id}>
-                <Link href={`/field/jobs/${job.id}`} className="block rounded-md border border-border bg-card p-4">
+                <Link href={`/field/jobs/${job.id}`} className="block h360-panel p-4">
                   <div className="flex items-start justify-between gap-2">
-                    <div className="text-xs uppercase tracking-wide text-neutral-500">
+                    <div className="text-xs text-muted-foreground">
                       {FIELD_JOB_TYPE_LABELS[job.job_type as FieldJobType]}
                     </div>
-                    <span className="rounded-md bg-muted px-2 py-0.5 text-[11px] capitalize text-foreground">
+                    <span className="rounded-md bg-muted px-2 py-0.5 text-[11px] text-foreground">
                       {FIELD_JOB_PRIORITY_LABELS[job.priority as FieldJobPriority]}
                     </span>
                   </div>
                   <div className="mt-1 text-base font-semibold">{board?.name}</div>
-                  <div className="text-sm text-neutral-600">
+                  <div className="text-sm text-muted-foreground">
                     {formatFaceIdentity({ boardName: board?.name, faceLabel: face?.face_label })}
                     {board?.locality || board?.city
                       ? ` · ${[board?.locality, board?.city].filter(Boolean).join(", ")}`
@@ -120,7 +123,7 @@ export default async function FieldHomePage({
                     <span>
                       {job.scheduled_at ? format(new Date(job.scheduled_at), "d MMM, p") : "Unscheduled"}
                     </span>
-                    <span className="font-medium capitalize">
+                    <span className="font-medium">
                       {FIELD_JOB_STATUS_LABELS[job.status as FieldJobStatus]}
                     </span>
                   </div>

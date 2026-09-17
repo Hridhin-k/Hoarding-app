@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
+import { FilterToolbar } from "@/components/filter-toolbar";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { requirePermission } from "@/lib/auth/session";
@@ -49,9 +50,10 @@ export default async function EnquiriesPage({
   const { data } = await query;
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Enquiries" description="Search, filter, assign, and convert marketplace demand." />
-      <form className="flex flex-wrap gap-2" method="get">
+    <div className="h360-stack">
+      <PageHeader title="Enquiries" />
+      <FilterToolbar>
+      <form className="flex flex-wrap items-center gap-2" method="get">
         <Input
           name="q"
           defaultValue={q ?? ""}
@@ -82,6 +84,7 @@ export default async function EnquiriesPage({
           Filter
         </button>
       </form>
+      </FilterToolbar>
       {!data?.length ? (
         <EmptyState title="No enquiries match" description="Try clearing filters or wait for marketplace demand." />
       ) : (
@@ -102,7 +105,7 @@ export default async function EnquiriesPage({
               return (
                 <TableRow key={row.id}>
                   <TableCell>
-                    <Link href={`/manage/enquiries/${row.id}`} className="font-medium hover:underline">
+                    <Link href={`/manage/enquiries/${row.id}`} className="font-medium hover:text-primary">
                       {row.name}
                     </Link>
                     <div className="text-xs text-muted-foreground">{row.company_name || row.email}</div>

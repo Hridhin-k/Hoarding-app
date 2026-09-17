@@ -1,5 +1,7 @@
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
+import { FilterToolbar } from "@/components/filter-toolbar";
+import { DisclosurePanel } from "@/components/disclosure-panel";
 import { Input } from "@/components/ui/input";
 import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
@@ -37,10 +39,15 @@ export default async function CustomersPage({
   const { data } = await query;
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Customers" description="Advertisers, agencies, and other accounts for occupancy and campaigns." />
-      {can(ctx, "customers.manage") ? <CreateCustomerForm /> : null}
-      <form className="flex flex-wrap gap-2" method="get">
+    <div className="h360-stack">
+      <PageHeader title="Clients" />
+      {can(ctx, "customers.manage") ? (
+        <DisclosurePanel title="Add client">
+          <CreateCustomerForm />
+        </DisclosurePanel>
+      ) : null}
+      <FilterToolbar>
+      <form className="flex flex-wrap items-center gap-2" method="get">
         <Input name="q" defaultValue={q ?? ""} placeholder="Search customers" className="max-w-sm" />
         <select name="type" defaultValue={type ?? ""} className="h360-select">
           <option value="">All types</option>
@@ -52,6 +59,7 @@ export default async function CustomersPage({
           Filter
         </button>
       </form>
+      </FilterToolbar>
       {!data?.length ? (
         <EmptyState title="No customers yet" description="Convert a won enquiry or add an advertiser directly." />
       ) : (

@@ -15,7 +15,7 @@ export function CreateCampaignForm({
   const [error, setError] = useState<string | null>(null);
   return (
     <form
-      className="grid gap-3 rounded-md border bg-card p-4 sm:grid-cols-2"
+      className="grid gap-3 sm:grid-cols-2"
       onSubmit={async (event) => {
         event.preventDefault();
         const result = await createCampaignAction(new FormData(event.currentTarget));

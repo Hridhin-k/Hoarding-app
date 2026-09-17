@@ -6,11 +6,11 @@ export default async function ResetPasswordPage() {
   const user = await getUser();
   if (!user) {
     return (
-      <div className="w-full max-w-sm rounded-md border bg-card p-6">
-        <h1 className="text-xl font-semibold">Link expired</h1>
+      <div className="w-full max-w-sm">
+        <h1 className="text-2xl font-semibold tracking-tight">Link expired</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           This reset link is invalid or has expired.{" "}
-          <Link href="/forgot-password" className="underline">
+          <Link href="/forgot-password" className="h360-quiet-link text-foreground underline-offset-4 hover:underline">
             Request a new one
           </Link>
           .
@@ -20,12 +20,9 @@ export default async function ResetPasswordPage() {
   }
 
   return (
-    <div className="w-full max-w-sm rounded-md border bg-card p-6">
+    <div className="w-full max-w-sm">
       <div className="mb-6">
-        <div className="text-sm font-medium text-muted-foreground">
-          <span className="text-primary">HOARDINGS</span>360
-        </div>
-        <h1 className="mt-2 text-xl font-semibold">Choose a new password</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Choose a new password</h1>
       </div>
       <ResetPasswordForm />
     </div>

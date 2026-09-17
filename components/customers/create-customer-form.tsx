@@ -9,7 +9,7 @@ export function CreateCustomerForm() {
   const [error, setError] = useState<string | null>(null);
   return (
     <form
-      className="grid gap-2 rounded-md border bg-card p-4 sm:grid-cols-3"
+      className="grid gap-2 sm:grid-cols-3"
       onSubmit={async (event) => {
         event.preventDefault();
         const result = await createCustomerAction(new FormData(event.currentTarget));

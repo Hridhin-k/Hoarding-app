@@ -23,8 +23,8 @@ export default async function PlatformOverviewPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        title="Platform operations"
-        description="HOARDINGS360 staff console. Tenant owners never see this surface."
+        title="Overview"
+        description="Tenant health across HOARDINGS360."
         actions={
           <Link href="/platform/tenants" className={cn(buttonVariants())}>
             View tenants
@@ -33,9 +33,9 @@ export default async function PlatformOverviewPage() {
       />
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((card) => (
-          <Link key={card.label} href={card.href} className="rounded-md border bg-card p-4 hover:bg-muted/40">
+          <Link key={card.label} href={card.href} className="h360-panel px-4 py-4 hover:bg-muted/40">
             <div className="text-xs text-muted-foreground">{card.label}</div>
-            <div className="mt-2 text-2xl font-semibold tabular-nums">{card.value}</div>
+            <div className="mt-1 text-2xl font-semibold tabular-nums tracking-tight">{card.value}</div>
           </Link>
         ))}
       </div>

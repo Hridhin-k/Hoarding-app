@@ -147,6 +147,14 @@
 }
 
 @layer utilities {
+  .h360-page {
+    @apply mx-auto w-full max-w-[1120px] flex-1 px-5 py-8 lg:px-8;
+  }
+
+  .h360-stack {
+    @apply flex flex-col gap-8;
+  }
+
   .h360-panel {
     @apply rounded-md border border-border bg-card;
   }
@@ -164,11 +172,15 @@
   }
 
   .h360-chip-active {
-    @apply border-transparent bg-accent font-medium text-accent-foreground hover:bg-accent hover:text-accent-foreground;
+    @apply border-transparent bg-muted font-medium text-foreground hover:bg-muted hover:text-foreground;
   }
 
   .h360-select {
-    @apply h-8 rounded-md border border-input bg-card px-2 text-sm;
+    @apply h-8 rounded-md border border-input bg-card px-2.5 text-sm text-foreground;
+  }
+
+  .h360-quiet-link {
+    @apply text-sm text-muted-foreground transition-colors hover:text-foreground;
   }
 
   .tabular-inr {

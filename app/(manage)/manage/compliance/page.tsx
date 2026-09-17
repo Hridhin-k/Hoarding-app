@@ -59,7 +59,7 @@ export default async function CompliancePage({
     <div className="space-y-6">
       <PageHeader
         title="Compliance"
-        description="Track permits and clearances per board. Mandatory expired items block marketplace publication."
+        description="Mandatory expired permits block marketplace publication."
       />
       <ComplianceSummaryCards counts={counts} activeStatus={status} />
       <div className="flex flex-wrap gap-2">

@@ -15,7 +15,7 @@ export function CreateJobForm({
   const [error, setError] = useState<string | null>(null);
   return (
     <form
-      className="grid gap-2 rounded-md border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4"
+      className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4"
       onSubmit={async (event) => {
         event.preventDefault();
         const result = await createFieldJobAction(new FormData(event.currentTarget));

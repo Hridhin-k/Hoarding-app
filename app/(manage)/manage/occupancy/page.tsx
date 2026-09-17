@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/empty-state";
 import { OccupancyForm } from "@/components/occupancy/occupancy-form";
 import { OccupancyPeriodActions } from "@/components/occupancy/occupancy-period-actions";
 import { PublishVacancyButton } from "@/components/occupancy/publish-vacancy-button";
+import { DisclosurePanel } from "@/components/disclosure-panel";
 import { OccupancyBadge, OccupancyStateBadge } from "@/components/status/status-badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { requirePermission } from "@/lib/auth/session";
@@ -67,11 +68,8 @@ export default async function OccupancyPage({
       .sort((a, b) => a.label.localeCompare(b.label, "en-IN")) ?? [];
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Occupancy"
-        description="Face-level holds, bookings, and occupied periods. Reservations cannot overlap."
-      />
+    <div className="h360-stack">
+      <PageHeader title="Availability" description="Holds, bookings, and occupied dates for each face." />
       <div className="flex gap-2">
         <Link href="/manage/occupancy?view=calendar" className={cn("h360-chip", view === "calendar" && "h360-chip-active")}>
           Calendar
@@ -81,7 +79,11 @@ export default async function OccupancyPage({
         </Link>
       </div>
 
-      {can(ctx, "occupancy.manage") && faceOptions.length ? <OccupancyForm faces={faceOptions} /> : null}
+      {can(ctx, "occupancy.manage") && faceOptions.length ? (
+        <DisclosurePanel title="Add occupancy">
+          <OccupancyForm faces={faceOptions} />
+        </DisclosurePanel>
+      ) : null}
 
       {!faces?.length ? (
         <EmptyState
@@ -152,7 +154,7 @@ export default async function OccupancyPage({
               !face.marketplace_visible;
 
             return (
-              <div key={face.id} className="rounded-md border bg-card p-4">
+              <div key={face.id} className="h360-panel p-4">
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <div className="font-medium">
@@ -163,7 +165,7 @@ export default async function OccupancyPage({
                       })}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      Lifecycle {board?.lifecycle_status} · Available from {format(available, "d MMM yyyy")}
+                      Available from {format(available, "d MMM yyyy")}
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">

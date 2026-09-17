@@ -1,5 +1,6 @@
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
+import { DisclosurePanel } from "@/components/disclosure-panel";
 import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { CreateJobForm } from "@/components/field/create-job-form";
@@ -37,9 +38,13 @@ export default async function FieldJobsPage() {
     });
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Field jobs" description="Assign site work. Technicians complete jobs in the Field PWA." />
-      {can(ctx, "field.manage") ? <CreateJobForm boards={boards ?? []} techs={techs} /> : null}
+    <div className="h360-stack">
+      <PageHeader title="Field jobs" />
+      {can(ctx, "field.manage") ? (
+        <DisclosurePanel title="Create job">
+          <CreateJobForm boards={boards ?? []} techs={techs} />
+        </DisclosurePanel>
+      ) : null}
       {!jobs?.length ? (
         <EmptyState title="No field jobs" description="Create installation, inspection, or proof-of-display jobs." />
       ) : (

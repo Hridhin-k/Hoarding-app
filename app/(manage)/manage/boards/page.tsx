@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
+import { FilterToolbar } from "@/components/filter-toolbar";
 import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -55,10 +56,10 @@ export default async function BoardsPage({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="h360-stack">
       <PageHeader
         title="Boards"
-        description="Physical structures. Faces are the sellable units."
+        description="Physical structures. Faces are what you sell."
         actions={
           can(ctx, "boards.create") ? (
             <Link href="/manage/boards/new" className={cn(buttonVariants())}>
@@ -68,7 +69,8 @@ export default async function BoardsPage({
         }
       />
 
-      <form className="flex flex-wrap gap-2">
+      <FilterToolbar>
+        <form className="flex flex-wrap items-center gap-2">
         <Input name="q" placeholder="Search code, name, locality" defaultValue={params.q} className="max-w-xs" />
         <PlaceFilters district={params.district} city={params.city} />
         <select name="lifecycle" defaultValue={params.lifecycle ?? ""} className="h360-select">
@@ -87,10 +89,11 @@ export default async function BoardsPage({
             </option>
           ))}
         </select>
-        <button className={cn(buttonVariants({ variant: "outline" }))} type="submit">
+        <button className={cn(buttonVariants({ variant: "outline", size: "sm" }))} type="submit">
           Filter
         </button>
-      </form>
+        </form>
+      </FilterToolbar>
 
       {error ? (
         <EmptyState title="Could not load boards" description="Try refreshing the page." />
@@ -146,17 +149,17 @@ export default async function BoardsPage({
       )}
 
       {count && count > pageSize ? (
-        <div className="flex gap-2 text-sm">
+        <div className="flex items-center gap-3 text-sm text-muted-foreground">
           {page > 1 ? (
-            <Link href={queryString(page - 1)} className="underline">
+            <Link href={queryString(page - 1)} className="h360-quiet-link">
               Previous
             </Link>
           ) : null}
-          <span className="text-muted-foreground">
+          <span>
             Page {page} of {Math.ceil(count / pageSize)}
           </span>
           {from + pageSize < count ? (
-            <Link href={queryString(page + 1)} className="underline">
+            <Link href={queryString(page + 1)} className="h360-quiet-link">
               Next
             </Link>
           ) : null}

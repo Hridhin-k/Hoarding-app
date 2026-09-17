@@ -49,7 +49,7 @@ export function FieldShell({
     },
     {
       href: "/field/profile",
-      label: "Profile",
+      label: "You",
       icon: User,
       active: pathname.startsWith("/field/profile"),
     },
@@ -60,21 +60,15 @@ export function FieldShell({
       <header className="h360-toolbar flex items-center justify-between gap-3 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
         <div className="min-w-0">
           <BrandMark compact className="text-sm" />
-          <div className="truncate text-sm font-medium text-foreground">{name}</div>
-          <div className="truncate text-xs text-muted-foreground">{tenantName}</div>
+          <p className="truncate text-xs text-muted-foreground">
+            {name} · {tenantName}
+          </p>
         </div>
-        <Link
-          href="/field/profile"
-          className="inline-flex size-11 shrink-0 items-center justify-center rounded-md border bg-card text-foreground"
-          aria-label="Open profile and sign out"
-        >
-          <User className="size-5" />
-        </Link>
       </header>
       <OfflineBanner />
-      <main className="flex-1 overflow-y-auto p-4 pb-6">{children}</main>
+      <main className="flex-1 overflow-y-auto px-4 py-5 pb-6">{children}</main>
       <nav
-        className="grid grid-cols-3 border-t border-border bg-card px-2 pt-1"
+        className="grid grid-cols-3 border-t border-border bg-card px-1 pt-1"
         style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
         aria-label="Field navigation"
       >
@@ -84,7 +78,7 @@ export function FieldShell({
             href={item.href}
             className={cn(
               "flex min-h-12 flex-col items-center justify-center gap-1 rounded-md py-2 text-xs font-medium",
-              item.active ? "bg-accent text-accent-foreground" : "text-muted-foreground",
+              item.active ? "bg-muted text-foreground" : "text-muted-foreground",
             )}
           >
             <item.icon className="size-5" aria-hidden />

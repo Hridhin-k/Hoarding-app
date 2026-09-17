@@ -1,5 +1,6 @@
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
+import { DisclosurePanel } from "@/components/disclosure-panel";
 import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { CreateCampaignForm } from "@/components/campaigns/create-campaign-form";
@@ -38,13 +39,12 @@ export default async function CampaignsPage() {
       .sort((a, b) => a.label.localeCompare(b.label, "en-IN")) ?? [];
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Campaigns"
-        description="Lightweight campaigns linked to customers and faces. No payments or contracts in MVP."
-      />
+    <div className="h360-stack">
+      <PageHeader title="Campaigns" />
       {can(ctx, "campaigns.manage") ? (
-        <CreateCampaignForm customers={customers ?? []} faces={faceOptions} />
+        <DisclosurePanel title="Create campaign">
+          <CreateCampaignForm customers={customers ?? []} faces={faceOptions} />
+        </DisclosurePanel>
       ) : null}
       {!campaigns?.length ? (
         <EmptyState title="No campaigns" description="Create a campaign after an enquiry is won." />

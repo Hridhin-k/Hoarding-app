@@ -1,5 +1,6 @@
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
+import { DisclosurePanel } from "@/components/disclosure-panel";
 import { requirePermission } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { ROLE_LABELS, type AppRole } from "@/lib/permissions/catalog";
@@ -13,9 +14,11 @@ export default async function TeamPage() {
     supabase.from("organization_invites").select("*").eq("tenant_id", ctx.tenantId).is("accepted_at", null),
   ]);
   return (
-    <div className="space-y-6">
-      <PageHeader title="Team" description="Roles control access. Technicians never see financial admin." />
-      <InviteForm />
+    <div className="h360-stack">
+      <PageHeader title="Team" />
+      <DisclosurePanel title="Invite teammate">
+        <InviteForm />
+      </DisclosurePanel>
       <ul className="divide-y rounded-md border bg-card">
         {(members ?? []).map((m) => {
           const profile = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles;

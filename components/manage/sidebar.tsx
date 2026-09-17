@@ -7,8 +7,9 @@ import {
   Bell,
   BriefcaseBusiness,
   CalendarRange,
+  ClipboardCheck,
   ClipboardList,
-  FolderOpen,
+  FileText,
   LayoutDashboard,
   MapPinned,
   Megaphone,
@@ -16,14 +17,13 @@ import {
   ScrollText,
   Settings,
   ShieldCheck,
-  UserRound,
   Users,
 } from "lucide-react";
-import { signOutAction } from "@/lib/auth/actions";
 import { can, ROLE_LABELS, type Permission } from "@/lib/permissions/catalog";
 import type { TenantContext } from "@/lib/auth/types";
 import { cn } from "@/lib/utils";
 import { BrandMark } from "@/components/brand/mark";
+import { AccountMenu } from "@/components/account-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -56,8 +56,8 @@ const GROUPS: Array<{ label: string; items: NavItem[] }> = [
   {
     label: "Operations",
     items: [
-      { href: "/manage/field-jobs", label: "Field jobs", icon: FolderOpen, permission: "field.manage" },
-      { href: "/manage/documents", label: "Documents", icon: FolderOpen, permission: "documents.view" },
+      { href: "/manage/field-jobs", label: "Field jobs", icon: ClipboardCheck, permission: "field.manage" },
+      { href: "/manage/documents", label: "Documents", icon: FileText, permission: "documents.view" },
     ],
   },
   {
@@ -104,16 +104,14 @@ function NavList({
   collapsed: boolean;
 }) {
   return (
-    <nav className="flex-1 space-y-4 overflow-y-auto px-2 py-3">
+    <nav className="flex-1 space-y-5 overflow-y-auto px-2 py-4">
       {GROUPS.map((group) => {
         const items = group.items.filter((item) => can(ctx, item.permission));
         if (!items.length) return null;
         return (
           <div key={group.label}>
             {collapsed ? null : (
-              <div className="px-2 pb-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                {group.label}
-              </div>
+              <div className="px-2.5 pb-1.5 text-[11px] font-medium text-muted-foreground">{group.label}</div>
             )}
             <div className="space-y-0.5">
               {items.map((item) => {
@@ -124,11 +122,11 @@ function NavList({
                     href={item.href}
                     title={collapsed ? item.label : undefined}
                     className={cn(
-                      "flex items-center gap-2 rounded-md px-2 py-1.5 text-[13px]",
+                      "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px]",
                       collapsed && "justify-center px-0",
                       active
-                        ? "bg-accent font-medium text-accent-foreground"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                        ? "bg-card font-medium text-foreground ring-1 ring-border"
+                        : "text-muted-foreground hover:bg-muted/70 hover:text-foreground",
                     )}
                   >
                     <item.icon className="size-4 shrink-0" />
@@ -162,11 +160,11 @@ export function ManageChrome({
 
   const sidebar = (
     <div className="flex h-full flex-col">
-      <div className={cn("flex items-center gap-2 border-b px-3 py-3", collapsed && "justify-center px-2")}>
+      <div className={cn("flex items-center gap-2 border-b px-3 py-4", collapsed && "justify-center px-2")}>
         <Link href="/manage" className="min-w-0">
           <BrandMark compact={collapsed} className="text-sm" />
           {collapsed ? null : (
-            <div className="mt-0.5 truncate text-xs text-muted-foreground">{ctx.tenantName}</div>
+            <div className="mt-1 truncate text-xs text-muted-foreground">{ctx.tenantName}</div>
           )}
         </Link>
       </div>
@@ -186,7 +184,7 @@ export function ManageChrome({
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="h360-toolbar sticky top-0 z-20">
-          <div className="flex h-12 items-center gap-2 px-4 lg:px-6">
+          <div className="flex h-14 items-center gap-2 px-4 lg:px-8">
             <Sheet>
               <SheetTrigger
                 render={<Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open navigation" />}
@@ -207,15 +205,15 @@ export function ManageChrome({
             >
               <PanelLeft className="size-4" />
             </Button>
-            <form action="/manage/boards" className="hidden min-w-0 flex-1 sm:block">
+            <form action="/manage/boards" className="hidden min-w-0 flex-1 md:block">
               <label className="sr-only" htmlFor="global-board-search">
                 Search boards
               </label>
               <Input
                 id="global-board-search"
                 name="q"
-                placeholder="Search boards, codes, localities"
-                className="h-8 max-w-md bg-background"
+                placeholder="Search boards"
+                className="h-8 max-w-xs bg-background"
               />
             </form>
             <div className="ml-auto flex items-center gap-1">
@@ -226,24 +224,10 @@ export function ManageChrome({
               >
                 <Bell className="size-4" />
                 {unread > 0 ? (
-                  <span className="absolute top-1 right-1 size-1.5 rounded-full bg-primary" />
+                  <span className="absolute top-1.5 right-1.5 size-1.5 rounded-md bg-primary" />
                 ) : null}
               </Link>
-              <Link
-                href="/manage/profile"
-                className="inline-flex max-w-[10rem] items-center gap-2 rounded-md px-2 py-1 text-left text-xs hover:bg-muted"
-              >
-                <UserRound className="size-4 text-muted-foreground" />
-                <span className="hidden min-w-0 sm:block">
-                  <span className="block truncate font-medium">{ctx.fullName}</span>
-                  <span className="block truncate text-muted-foreground">{ROLE_LABELS[ctx.role]}</span>
-                </span>
-              </Link>
-              <form action={signOutAction}>
-                <Button variant="ghost" size="sm" type="submit">
-                  Sign out
-                </Button>
-              </form>
+              <AccountMenu name={ctx.fullName} roleLabel={ROLE_LABELS[ctx.role]} profileHref="/manage/profile" />
             </div>
           </div>
         </header>

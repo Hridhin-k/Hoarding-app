@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
+import { PropertyList } from "@/components/property-list";
+import { DisclosurePanel } from "@/components/disclosure-panel";
 import { MapViewLazy } from "@/components/maps/map-view-lazy";
 import { StatusCluster } from "@/components/status/status-badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -84,11 +86,11 @@ export default async function BoardDetailPage({
   const occupancySummary = summarizeOccupancyDimensions(occupancyDimensions);
 
   return (
-    <div className="space-y-6">
+    <div className="h360-stack">
       <PageHeader
-        eyebrow={<span className="font-mono text-xs text-muted-foreground">{board.board_code}</span>}
+        eyebrow={board.board_code}
         title={board.name}
-        description={[board.locality, board.city, board.district].filter(Boolean).join(", ")}
+        description={[...new Set([board.locality, board.city, board.district].filter(Boolean))].join(" · ")}
         meta={
           <StatusCluster
             lifecycle={board.lifecycle_status as BoardLifecycle}
@@ -106,59 +108,62 @@ export default async function BoardDetailPage({
           <TabsTrigger value="activity">Activity</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-4 pt-4">
-          <div className="grid gap-4 lg:grid-cols-3">
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle>Structure</CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-2 text-sm sm:grid-cols-2">
-                <div>Type: {STRUCTURE_TYPE_LABELS[board.structure_type as StructureType]}</div>
-                <div>Ownership: {board.ownership_type}</div>
-                <div>Landmark: {board.landmark || "—"}</div>
-                <div>Pincode: {board.pincode || "—"}</div>
-                <div>Active faces: {activeFaces.length}</div>
-                <div>Address: {board.address || "—"}</div>
-                <p className="sm:col-span-2 text-muted-foreground">{board.description || "No description."}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>QR identifier</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <BoardQr slug={board.qr_slug} />
-                <p className="mt-2 text-xs text-muted-foreground">Lookup only — not authentication.</p>
-              </CardContent>
-            </Card>
+        <TabsContent value="overview" className="space-y-6 pt-6">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_16rem]">
+            <div className="h360-panel p-5">
+              <h2 className="mb-4 text-sm font-medium">Structure</h2>
+              <PropertyList
+                items={[
+                  { label: "Type", value: STRUCTURE_TYPE_LABELS[board.structure_type as StructureType] },
+                  {
+                    label: "Ownership",
+                    value: board.ownership_type.replace("_", " "),
+                  },
+                  { label: "Active faces", value: String(activeFaces.length) },
+                  { label: "Landmark", value: board.landmark },
+                  { label: "Address", value: board.address },
+                  { label: "Pincode", value: board.pincode },
+                ]}
+              />
+              {board.description ? (
+                <p className="mt-4 text-sm text-muted-foreground">{board.description}</p>
+              ) : null}
+            </div>
+            <div className="h360-panel p-5">
+              <h2 className="mb-4 text-sm font-medium">QR identifier</h2>
+              <BoardQr slug={board.qr_slug} />
+              <p className="mt-3 text-xs text-muted-foreground">Lookup only — not authentication.</p>
+            </div>
           </div>
 
           {can(ctx, "boards.update") ? (
-            <BoardEditForm
-              board={{
-                id: board.id,
-                board_code: board.board_code,
-                name: board.name,
-                description: board.description,
-                structure_type: board.structure_type as StructureType,
-                ownership_type: board.ownership_type as OwnershipType,
-                lifecycle_status: board.lifecycle_status as BoardLifecycle,
-                address: board.address,
-                locality: board.locality,
-                city: board.city,
-                district: board.district,
-                state: board.state,
-                pincode: board.pincode,
-                landmark: board.landmark,
-                latitude: board.latitude,
-                longitude: board.longitude,
-              }}
-              canRetire={can(ctx, "boards.update")}
-            />
+            <DisclosurePanel title="Edit board">
+              <BoardEditForm
+                board={{
+                  id: board.id,
+                  board_code: board.board_code,
+                  name: board.name,
+                  description: board.description,
+                  structure_type: board.structure_type as StructureType,
+                  ownership_type: board.ownership_type as OwnershipType,
+                  lifecycle_status: board.lifecycle_status as BoardLifecycle,
+                  address: board.address,
+                  locality: board.locality,
+                  city: board.city,
+                  district: board.district,
+                  state: board.state,
+                  pincode: board.pincode,
+                  landmark: board.landmark,
+                  latitude: board.latitude,
+                  longitude: board.longitude,
+                }}
+                canRetire={can(ctx, "boards.update")}
+              />
+            </DisclosurePanel>
           ) : null}
         </TabsContent>
 
-        <TabsContent value="faces" className="space-y-4 pt-4">
+        <TabsContent value="faces" className="space-y-6 pt-6">
           {!activeFaces.length ? (
             <EmptyState title="No active faces" description="Add independently sellable faces to this board." />
           ) : (
@@ -210,10 +215,9 @@ export default async function BoardDetailPage({
           )}
 
           {can(ctx, "faces.create") ? (
-            <div className="space-y-2">
-              <h3 className="text-sm font-medium">Add face</h3>
+            <DisclosurePanel title="Add face">
               <FaceForm boardId={board.id} canEdit={can(ctx, "faces.create")} canArchive={false} />
-            </div>
+            </DisclosurePanel>
           ) : null}
 
           {archivedFaces.length ? (
@@ -244,28 +248,27 @@ export default async function BoardDetailPage({
           ) : null}
         </TabsContent>
 
-        <TabsContent value="location" className="space-y-4 pt-4">
-          <Card>
-            <CardContent className="grid gap-2 pt-6 text-sm sm:grid-cols-2">
-              <div>Address: {board.address || "—"}</div>
-              <div>Locality: {board.locality || "—"}</div>
-              <div>
-                City / District: {board.city || "—"}
-                {board.district ? ` / ${board.district}` : ""}
-              </div>
-              <div>
-                State / Pincode: {board.state || "—"}
-                {board.pincode ? ` / ${board.pincode}` : ""}
-              </div>
-              <div>Landmark: {board.landmark || "—"}</div>
-              <div>
-                Coordinates:{" "}
-                {board.latitude != null && board.longitude != null
-                  ? `${Number(board.latitude).toFixed(5)}, ${Number(board.longitude).toFixed(5)}`
-                  : "—"}
-              </div>
-            </CardContent>
-          </Card>
+        <TabsContent value="location" className="space-y-6 pt-6">
+          <div className="h360-panel p-5">
+            <PropertyList
+              items={[
+                { label: "Address", value: board.address },
+                { label: "Locality", value: board.locality },
+                { label: "City", value: board.city },
+                { label: "District", value: board.district },
+                { label: "State", value: board.state },
+                { label: "Pincode", value: board.pincode },
+                { label: "Landmark", value: board.landmark },
+                {
+                  label: "Coordinates",
+                  value:
+                    board.latitude != null && board.longitude != null
+                      ? `${Number(board.latitude).toFixed(5)}, ${Number(board.longitude).toFixed(5)}`
+                      : null,
+                },
+              ]}
+            />
+          </div>
           {board.latitude && board.longitude ? (
             <MapViewLazy
               markers={[
@@ -288,13 +291,13 @@ export default async function BoardDetailPage({
           )}
         </TabsContent>
 
-        <TabsContent value="activity" className="pt-4">
+        <TabsContent value="activity" className="pt-6">
           {!activity?.length ? (
             <p className="text-sm text-muted-foreground">No activity recorded yet.</p>
           ) : (
-            <ul className="space-y-2 text-sm">
+            <ul className="h360-panel divide-y text-sm">
               {activity.map((row) => (
-                <li key={row.id} className="rounded-md border px-3 py-2">
+                <li key={row.id} className="px-4 py-3">
                   <span className="font-medium">{row.action}</span>
                   <span className="text-muted-foreground">
                     {" "}

@@ -18,12 +18,12 @@ export default async function ManageLayout({ children }: LayoutProps<"/manage">)
   return (
     <ManageChrome ctx={ctx} unread={count ?? 0}>
       {ctx.tenantStatus === "suspended" ? (
-        <div className="border-b bg-destructive/10 px-4 py-2 text-sm text-destructive">
+        <div className="border-b bg-destructive/10 px-5 py-2.5 text-sm text-destructive lg:px-8">
           This organization is suspended on the marketplace. Public listings stay hidden until HOARDINGS360
           reactivates it. Manage still works.
         </div>
       ) : null}
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 lg:px-6">{children}</main>
+      <main className="h360-page">{children}</main>
     </ManageChrome>
   );
 }

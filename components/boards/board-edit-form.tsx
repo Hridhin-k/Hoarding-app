@@ -68,7 +68,7 @@ export function BoardEditForm({ board, canRetire }: { board: BoardEditValues; ca
 
   return (
     <form
-      className="space-y-4 rounded-md border bg-card p-4"
+      className="space-y-4"
       onSubmit={async (event) => {
         event.preventDefault();
         const form = new FormData(event.currentTarget);

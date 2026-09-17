@@ -16,10 +16,7 @@ export default async function DocumentsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Documents"
-        description="Private repository. Downloads use short-lived signed URLs — files are never public."
-      />
+      <PageHeader title="Documents" />
       {!data?.length ? (
         <EmptyState title="No documents" description="Upload permits from Compliance or attach files to a board." />
       ) : (

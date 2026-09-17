@@ -12,10 +12,7 @@ export default async function PlatformTenantsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Tenants"
-        description="Media-owner organizations on this platform. Inspect is audited and time-boxed."
-      />
+      <PageHeader title="Tenants" />
       {!tenants.length ? (
         <EmptyState title="No tenants" description="Organizations appear here after owners complete onboarding." />
       ) : (

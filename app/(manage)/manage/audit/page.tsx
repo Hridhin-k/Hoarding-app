@@ -14,7 +14,7 @@ export default async function AuditPage() {
     .limit(100);
   return (
     <div className="space-y-6">
-      <PageHeader title="Audit log" description="Important mutations are recorded with actor and entity." />
+      <PageHeader title="Activity" />
       {!data?.length ? (
         <EmptyState title="No audit events" description="Creates, publishes, occupancy changes, and field completion appear here." />
       ) : (
