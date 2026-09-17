@@ -110,7 +110,7 @@ export default async function ProofDetailPage({
         ]}
         center={{ lat: Number(proof.latitude), lng: Number(proof.longitude) }}
         zoom={17}
-        className="h-[240px] w-full overflow-hidden rounded-2xl border"
+        className="h-[20rem]"
       />
     </div>
   );

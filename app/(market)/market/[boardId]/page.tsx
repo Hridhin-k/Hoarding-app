@@ -99,9 +99,35 @@ export default async function MarketBoardPage({ params }: Props) {
         </div>
       </div>
 
-      <ListingGallery photos={visiblePhotos} boardName={board.board_name} />
+      <div className="grid gap-4 lg:grid-cols-2 lg:items-stretch">
+        <ListingGallery
+          photos={visiblePhotos}
+          boardName={board.board_name}
+          className="min-h-[18rem] lg:min-h-[36rem]"
+        />
+        {board.latitude != null && board.longitude != null ? (
+          <section className="relative min-h-[50dvh] lg:min-h-[36rem]" aria-label="Location">
+            <MapViewLazy
+              markers={[
+                {
+                  id: board.board_id,
+                  lat: Number(board.latitude),
+                  lng: Number(board.longitude),
+                  title: board.board_name,
+                },
+              ]}
+              center={{ lat: Number(board.latitude), lng: Number(board.longitude) }}
+              zoom={16}
+              className="h-full min-h-[50dvh] lg:min-h-[36rem]"
+            />
+            <p className="pointer-events-none absolute inset-x-3 bottom-14 z-20 max-w-lg rounded-md border bg-card/95 px-3 py-2 text-xs text-muted-foreground">
+              {locationLine}
+            </p>
+          </section>
+        ) : null}
+      </div>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
         <div className="space-y-6">
           <section className="rounded-md border bg-card p-5">
             <h2 className="text-base font-semibold">Site</h2>
@@ -124,29 +150,6 @@ export default async function MarketBoardPage({ params }: Props) {
               </div>
             </dl>
           </section>
-
-          {board.latitude != null && board.longitude != null ? (
-            <section className="space-y-2">
-              <div>
-                <h2 className="text-base font-semibold">Location & street view</h2>
-                <p className="text-sm text-muted-foreground">Confirm the junction before you enquire.</p>
-              </div>
-              <MapViewLazy
-                markers={[
-                  {
-                    id: board.board_id,
-                    lat: Number(board.latitude),
-                    lng: Number(board.longitude),
-                    title: board.board_name,
-                  },
-                ]}
-                center={{ lat: Number(board.latitude), lng: Number(board.longitude) }}
-                zoom={15}
-                className="h-[280px] w-full overflow-hidden rounded-md border lg:h-[320px]"
-              />
-              <p className="text-sm text-muted-foreground">{locationLine}</p>
-            </section>
-          ) : null}
 
           <section id="faces" className="space-y-4 scroll-mt-20">
             <div>

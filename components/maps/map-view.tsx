@@ -5,10 +5,13 @@ import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { whileSuppressingAbortErrors } from "@/lib/maps/abort";
 import { DEFAULT_CENTER, mapStyleForBasemap } from "@/lib/maps/style";
-import { resolveStreetViewPoint } from "@/lib/maps/street-view";
+import { resolveStreetViewPoint, streetViewOpenUrl } from "@/lib/maps/street-view";
 import type { MapBasemap, MapMarker } from "@/lib/maps/types";
 import { BasemapToggle } from "@/components/maps/basemap-toggle";
 import { StreetViewPane } from "@/components/maps/street-view-pane";
+import { cn } from "@/lib/utils";
+
+type MapPane = "map" | "street";
 
 export function MapView({
   markers,
@@ -17,7 +20,8 @@ export function MapView({
   onMarkerClick,
   interactive = true,
   className,
-  orientation = "beside",
+  showStreetView = true,
+  framed = true,
 }: {
   markers: MapMarker[];
   center?: { lat: number; lng: number };
@@ -25,7 +29,8 @@ export function MapView({
   onMarkerClick?: (id: string) => void;
   interactive?: boolean;
   className?: string;
-  orientation?: "beside" | "stack";
+  showStreetView?: boolean;
+  framed?: boolean;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -34,8 +39,8 @@ export function MapView({
   const [ready, setReady] = useState(false);
   const [basemap, setBasemap] = useState<MapBasemap>("satellite");
   const [focusedId, setFocusedId] = useState<string | null>(null);
+  const [pane, setPane] = useState<MapPane>("map");
   const skipStyleSwap = useRef(true);
-  const paneClass = className ?? "h-[420px] w-full overflow-hidden rounded-xl border";
 
   useEffect(() => {
     onMarkerClickRef.current = onMarkerClick;
@@ -112,9 +117,7 @@ export function MapView({
         setFocusedId(marker.id);
         onMarkerClickRef.current?.(marker.id);
       });
-      const instance = new maplibregl.Marker({ element: el })
-        .setLngLat([marker.lng, marker.lat])
-        .addTo(map);
+      const instance = new maplibregl.Marker({ element: el }).setLngLat([marker.lng, marker.lat]).addTo(map);
       markerInstancesRef.current.push(instance);
     }
 
@@ -125,23 +128,99 @@ export function MapView({
     }
   }, [markers, ready]);
 
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || pane !== "map") return;
+    const frame = requestAnimationFrame(() => map.resize());
+    return () => cancelAnimationFrame(frame);
+  }, [pane, ready]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    const el = containerRef.current;
+    if (!map || !el) return;
+    const observer = new ResizeObserver(() => {
+      map.resize();
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [ready]);
+
   const streetView = useMemo(
     () => resolveStreetViewPoint({ center, markers, focusedId }),
     [center, markers, focusedId],
   );
 
+  const showMapPane = pane === "map" || !showStreetView;
+
   return (
-    <div className={orientation === "stack" ? "grid gap-3" : "grid gap-3 lg:grid-cols-2"}>
-      <div className="relative">
-        <div ref={containerRef} className={paneClass} />
-        <BasemapToggle basemap={basemap} onChange={setBasemap} />
+    <div className={cn("relative min-h-[240px]", className)}>
+      <div
+        className={cn(
+          "absolute inset-0 overflow-hidden bg-muted",
+          framed && "rounded-md border",
+        )}
+      >
+        <div ref={containerRef} className="h-full w-full" />
+        {showMapPane ? (
+          <BasemapToggle
+            basemap={basemap}
+            onChange={setBasemap}
+            className="absolute bottom-3 left-3 z-10"
+          />
+        ) : null}
+        {showStreetView ? (
+          <div className="absolute top-3 left-3 z-20 flex flex-wrap items-center gap-2">
+            <div className="flex rounded-md border bg-card p-0.5" role="tablist" aria-label="Map or street view">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={pane === "map"}
+                className={cn(
+                  "h-8 rounded-[5px] px-3 text-sm",
+                  pane === "map" ? "bg-accent font-medium text-accent-foreground" : "text-muted-foreground",
+                )}
+                onClick={() => setPane("map")}
+              >
+                Map
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={pane === "street"}
+                className={cn(
+                  "h-8 rounded-[5px] px-3 text-sm",
+                  pane === "street" ? "bg-accent font-medium text-accent-foreground" : "text-muted-foreground",
+                )}
+                onClick={() => setPane("street")}
+              >
+                Street view
+              </button>
+            </div>
+            {pane === "street" && streetView ? (
+              <a
+                href={streetViewOpenUrl(streetView.lat, streetView.lng)}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-md border bg-card px-2.5 py-1.5 text-xs text-foreground hover:bg-muted"
+              >
+                Open in Google
+              </a>
+            ) : null}
+          </div>
+        ) : null}
+        {showStreetView && pane === "street" ? (
+          <div className="absolute inset-0 z-10 bg-card">
+            <StreetViewPane
+              lat={streetView?.lat}
+              lng={streetView?.lng}
+              chrome={false}
+              className="h-full min-h-full rounded-none border-0"
+              emptyLabel="Click a site pin on the map, then open street view."
+            />
+          </div>
+        ) : null}
       </div>
-      <StreetViewPane
-        lat={streetView?.lat}
-        lng={streetView?.lng}
-        className={paneClass}
-        emptyLabel="Click a site on the map to open street view."
-      />
     </div>
   );
 }

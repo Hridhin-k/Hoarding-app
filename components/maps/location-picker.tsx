@@ -221,7 +221,7 @@ export function LocationPicker({
             role="application"
             aria-label="Location picker map"
           />
-          <BasemapToggle basemap={basemap} onChange={setBasemap} />
+          <BasemapToggle basemap={basemap} onChange={setBasemap} className="absolute top-3 left-3 z-10" />
         </div>
         <StreetViewPane
           lat={latitude}

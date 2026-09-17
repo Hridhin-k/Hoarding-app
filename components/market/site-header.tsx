@@ -10,11 +10,11 @@ export function MarketSiteHeader() {
   const onMarket = pathname.startsWith("/market");
 
   return (
-    <header className="sticky top-0 z-20 h360-toolbar">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2.5">
-        <Link href="/market" className="flex min-w-0 flex-col">
+    <header className="sticky top-0 z-20 h-14 h360-toolbar">
+      <div className="mx-auto flex h-full max-w-7xl items-center justify-between gap-4 px-4">
+        <Link href="/market" className="flex min-w-0 items-baseline gap-2">
           <BrandMark />
-          <span className="hidden text-[11px] text-muted-foreground sm:block">Kerala outdoor marketplace</span>
+          <span className="hidden text-[11px] text-muted-foreground sm:inline">Kerala outdoor marketplace</span>
         </Link>
         <nav className="flex items-center gap-1 text-sm">
           <Link

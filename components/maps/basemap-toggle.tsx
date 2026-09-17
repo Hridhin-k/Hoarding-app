@@ -1,16 +1,19 @@
 "use client";
 
 import type { MapBasemap } from "@/lib/maps/types";
+import { cn } from "@/lib/utils";
 
 export function BasemapToggle({
   basemap,
   onChange,
+  className,
 }: {
   basemap: MapBasemap;
   onChange: (value: MapBasemap) => void;
+  className?: string;
 }) {
   return (
-    <div className="absolute top-3 left-3 z-10 flex overflow-hidden rounded-lg border bg-white/95 text-xs shadow-sm">
+    <div className={cn("absolute z-10 flex overflow-hidden rounded-md border bg-card text-xs", className)}>
       <button
         type="button"
         className={`px-3 py-1.5 ${basemap === "satellite" ? "bg-primary font-medium text-primary-foreground" : "text-foreground"}`}
@@ -23,7 +26,7 @@ export function BasemapToggle({
         className={`px-3 py-1.5 ${basemap === "streets" ? "bg-primary font-medium text-primary-foreground" : "text-foreground"}`}
         onClick={() => onChange("streets")}
       >
-        Map
+        Streets
       </button>
     </div>
   );

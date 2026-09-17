@@ -144,11 +144,12 @@ export default async function MarketPage({
   );
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-6">
-      <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
-        <MarketSearch values={params} activeCount={chips.length} />
-        <MarketBrowseLayout list={list} map={<MarketplaceMap boards={mapBoards} />} />
-      </div>
+    <main className="flex min-h-0 flex-1 flex-col">
+      <MarketBrowseLayout
+        filters={<MarketSearch values={params} activeCount={chips.length} />}
+        list={list}
+        map={<MarketplaceMap boards={mapBoards} />}
+      />
     </main>
   );
 }

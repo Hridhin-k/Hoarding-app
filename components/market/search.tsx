@@ -167,7 +167,7 @@ export function MarketSearch({
 }) {
   return (
     <>
-      <form method="get" className="h360-panel sticky top-16 hidden space-y-3 p-4 lg:block">
+      <form method="get" className="hidden space-y-3 xl:block">
         <div>
           <h1 className="text-lg font-semibold tracking-tight">Find a face</h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -180,7 +180,7 @@ export function MarketSearch({
         </Button>
       </form>
 
-      <div className="lg:hidden">
+      <div className="xl:hidden">
         <form method="get" className="flex gap-2">
           {MARKETPLACE_FILTER_KEYS.filter((key) => key !== "q").map((key) =>
             values?.[key] ? <input key={key} type="hidden" name={key} value={values[key]} /> : null,

@@ -7,23 +7,22 @@ export function StreetViewPane({
   lat,
   lng,
   className,
+  chrome = true,
   emptyLabel = "Street view appears when a site pin is set.",
 }: {
   lat?: number | null;
   lng?: number | null;
   className?: string;
+  chrome?: boolean;
   emptyLabel?: string;
 }) {
   const ready = lat != null && lng != null && Number.isFinite(lat) && Number.isFinite(lng);
-  const frameClass = cn(
-    "relative min-h-[240px] w-full overflow-hidden rounded-xl border bg-muted",
-    className,
-  );
+  const frameClass = cn("relative h-full min-h-[240px] w-full overflow-hidden rounded-md border bg-muted", className);
 
   if (!ready) {
     return (
-      <div className={cn(frameClass, "flex items-center justify-center p-4")} role="status">
-        <p className="text-center text-sm text-muted-foreground">{emptyLabel}</p>
+      <div className={cn(frameClass, "flex items-center justify-center p-6")} role="status">
+        <p className="max-w-xs text-center text-sm text-muted-foreground">{emptyLabel}</p>
       </div>
     );
   }
@@ -43,17 +42,16 @@ export function StreetViewPane({
         loading="lazy"
         referrerPolicy="no-referrer-when-downgrade"
       />
-      <span className="pointer-events-none absolute top-3 left-3 z-10 rounded-lg border bg-white/95 px-3 py-1.5 text-xs font-medium text-foreground shadow-sm">
-        Street view
-      </span>
-      <a
-        href={openHref}
-        target="_blank"
-        rel="noreferrer"
-        className="absolute top-3 right-3 z-10 rounded-lg border bg-white/95 px-3 py-1.5 text-xs text-foreground shadow-sm hover:bg-white"
-      >
-        Open in Google
-      </a>
+      {chrome ? (
+        <a
+          href={openHref}
+          target="_blank"
+          rel="noreferrer"
+          className="absolute top-3 right-3 z-10 rounded-md border bg-card px-3 py-1.5 text-xs text-foreground hover:bg-muted"
+        >
+          Open in Google
+        </a>
+      ) : null}
     </div>
   );
 }

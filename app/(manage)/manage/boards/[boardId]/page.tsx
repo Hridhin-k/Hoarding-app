@@ -278,6 +278,7 @@ export default async function BoardDetailPage({
               ]}
               center={{ lat: Number(board.latitude), lng: Number(board.longitude) }}
               zoom={14}
+              className="h-[28rem]"
             />
           ) : (
             <EmptyState

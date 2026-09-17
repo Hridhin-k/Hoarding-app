@@ -121,7 +121,7 @@ export default async function FieldJobPage({
           ]}
           center={{ lat: Number(board.latitude), lng: Number(board.longitude) }}
           zoom={16}
-          className="h-[240px] w-full overflow-hidden rounded-2xl border"
+          className="h-[20rem]"
         />
       ) : null}
 

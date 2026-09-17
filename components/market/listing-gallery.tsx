@@ -13,30 +13,37 @@ export type MarketPhoto = {
 export function ListingGallery({
   photos,
   boardName,
+  className,
 }: {
   photos: MarketPhoto[];
   boardName: string;
+  className?: string;
 }) {
   const [activeId, setActiveId] = useState(photos[0]?.id ?? "");
   const active = photos.find((photo) => photo.id === activeId) ?? photos[0];
 
   if (!active) {
     return (
-      <div className="flex h-56 items-center justify-center rounded-md border border-dashed bg-card text-sm text-muted-foreground">
+      <div
+        className={cn(
+          "flex min-h-56 items-center justify-center rounded-md border border-dashed bg-card p-6 text-center text-sm text-muted-foreground",
+          className,
+        )}
+      >
         Site photos will appear when the media owner publishes them.
       </div>
     );
   }
 
   return (
-    <div className="space-y-2">
-      <div className="relative h-64 overflow-hidden rounded-md border bg-muted sm:h-80 lg:h-[420px]">
+    <div className={cn("flex min-h-0 flex-col gap-2", className)}>
+      <div className="relative min-h-56 flex-1 overflow-hidden rounded-md border bg-muted">
         <Image
           src={active.url}
           alt={active.caption || boardName}
           fill
           className="object-cover"
-          sizes="(max-width: 1024px) 100vw, 960px"
+          sizes="(max-width: 1024px) 100vw, 50vw"
           priority
           unoptimized
         />

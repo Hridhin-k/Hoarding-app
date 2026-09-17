@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { MapMarker } from "@/lib/maps/types";
+import { cn } from "@/lib/utils";
 
 type MapViewProps = {
   markers: MapMarker[];
@@ -11,22 +12,22 @@ type MapViewProps = {
   onMarkerClick?: (id: string) => void;
   interactive?: boolean;
   className?: string;
-  orientation?: "beside" | "stack";
+  showStreetView?: boolean;
+  framed?: boolean;
 };
 
 const MapView = dynamic(
   () => import("@/components/maps/map-view").then((m) => m.MapView),
   {
     ssr: false,
-    loading: () => (
-      <div className="grid gap-3 lg:grid-cols-2">
-        <Skeleton className="h-full min-h-[220px] w-full rounded-md" />
-        <Skeleton className="h-full min-h-[220px] w-full rounded-md" />
-      </div>
-    ),
+    loading: () => <Skeleton className="h-full min-h-[240px] w-full rounded-md" />,
   },
 );
 
-export function MapViewLazy(props: MapViewProps) {
-  return <MapView {...props} />;
+export function MapViewLazy({ className, ...props }: MapViewProps) {
+  return (
+    <div className={cn("min-h-[240px]", className)}>
+      <MapView {...props} className="h-full" />
+    </div>
+  );
 }

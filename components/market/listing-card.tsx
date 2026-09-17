@@ -39,19 +39,19 @@ export function MarketListingCard({
 
   return (
     <article className="overflow-hidden rounded-md border border-border bg-card transition-colors hover:border-primary/35">
-      <Link href={href} className="grid sm:grid-cols-[220px_1fr]">
-        <div className="relative aspect-[4/3] bg-muted sm:aspect-auto sm:h-full sm:min-h-[176px]">
+      <Link href={href} className="block">
+        <div className="relative aspect-[16/10] bg-muted">
           {photoUrl ? (
             <Image
               src={photoUrl}
               alt={photoCaption || boardName}
               fill
               className="object-cover"
-              sizes="(max-width: 640px) 100vw, 220px"
+              sizes="(max-width: 1280px) 100vw, 28rem"
               unoptimized
             />
           ) : (
-            <div className="flex h-full min-h-[168px] flex-col justify-end p-3">
+            <div className="flex h-full min-h-[10rem] flex-col justify-end p-3">
               <p className="text-xs font-medium text-muted-foreground">{STRUCTURE_TYPE_LABELS[structureType]}</p>
               <p className="text-sm font-medium">{city}</p>
             </div>

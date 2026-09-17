@@ -15,7 +15,7 @@ export default function MarketLayout({ children }: { children: React.ReactNode }
   return (
     <div className="flex min-h-full flex-col bg-background text-foreground">
       <MarketSiteHeader />
-      <div className="flex-1">{children}</div>
+      <div className="flex min-h-0 flex-1 flex-col">{children}</div>
       <MarketSiteFooter />
     </div>
   );
